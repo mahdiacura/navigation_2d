@@ -10,7 +10,7 @@ public:
 
     void SetCoordinate  (double _x, double _y, double _z);
     CCoordinate         (double _x, double _y, double _z);
-    CCoordinate         () = delete;
+    CCoordinate         ();
     ~CCoordinate        ();
 private:
     bool m_isInitialized;

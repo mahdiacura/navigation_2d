@@ -29,7 +29,9 @@ SOURCES += \
     Dijkstra/cdijkstra.cpp \
     ShapeFile/Shapefile.c \
     ShapeFile/cshapefile.cpp \
-    Coordinate/ccoordinate.cpp
+    Coordinate/ccoordinate.cpp \
+    Coordinate/cway.cpp \
+    Coordinate/crectangle.cpp
 
 HEADERS += \
 	mainwindow.h \
@@ -38,7 +40,9 @@ HEADERS += \
     ShapeFile/Shapefile.h \
     ShapeFile/Shapefile-internal.h \
     ShapeFile/cshapefile.h \
-    Coordinate/ccoordinate.h
+    Coordinate/ccoordinate.h \
+    Coordinate/cway.h \
+    Coordinate/crectangle.h
 
 FORMS += \
         mainwindow.ui
