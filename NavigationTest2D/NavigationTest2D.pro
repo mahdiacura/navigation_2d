@@ -25,12 +25,20 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 SOURCES += \
         main.cpp \
-        mainwindow.cpp
+	mainwindow.cpp \
+    Dijkstra/cdijkstra.cpp \
+    ShapeFile/Shapefile.c \
+    ShapeFile/cshapefile.cpp \
+    Coordinate/ccoordinate.cpp
 
 HEADERS += \
-        mainwindow.h \
-    ccoordinate.h \
-    csystemversion.h
+	mainwindow.h \
+    Dijkstra/cdijkstra.h \
+    Dijkstra/csystemversion.h \
+    ShapeFile/Shapefile.h \
+    ShapeFile/Shapefile-internal.h \
+    ShapeFile/cshapefile.h \
+    Coordinate/ccoordinate.h
 
 FORMS += \
         mainwindow.ui
