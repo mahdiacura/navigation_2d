@@ -29,7 +29,8 @@ SOURCES += \
 
 HEADERS += \
         mainwindow.h \
-    ccoordinate.h
+    ccoordinate.h \
+    csystemversion.h
 
 FORMS += \
         mainwindow.ui
