@@ -23,8 +23,8 @@ public:
     std::vector<CWay> m_ways;//! make it private
     std::vector<CCoordinate> m_coordinates; //! make it private
     std::vector<CCoordinate>::iterator m_coordinateIterator;
+    std::vector<int32_t> m_preCoordinateIndexes;
     int32_t m_coordinatesCount;
-//    int32_t m_row;
     int32_t m_startIndex;
     int32_t m_endIndex;
 

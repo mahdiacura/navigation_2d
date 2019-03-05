@@ -41,7 +41,8 @@ void CDijkstra::SetDistance(CWay & _way){
         _way.m_endCoordinate);
     m_endIndex = m_coordinateIterator - m_coordinates.begin();
 
-    m_distances[m_startIndex][m_endIndex] = _way.m_distance;
+    m_distances[m_startIndex][m_endIndex]   = _way.m_distance;
+    m_preCoordinateIndexes[m_endIndex]      = m_startIndex;
 }
 
 void CDijkstra::GenerateDistancesMatrix(int32_t _coordinatesCount){
@@ -50,6 +51,7 @@ void CDijkstra::GenerateDistancesMatrix(int32_t _coordinatesCount){
     //Clear the distances matrix
     m_distances.clear();
     m_distances.resize(m_coordinatesCount, std::vector<double>(m_coordinatesCount, INFINITE));
+    m_preCoordinateIndexes.resize(m_coordinatesCount, -1);
 
     //Extract the coordinates
     for (std::vector<CWay>::iterator ways = m_ways.begin(); ways != m_ways.end(); ways++){
@@ -77,12 +79,12 @@ int32_t CDijkstra::GetIndex(CCoordinate & _coordinate){
 std::vector<CCoordinate> CDijkstra::FindShortestPath(
     CCoordinate _source, CCoordinate _destination){
     std::vector<CCoordinate> shortestPath;
-//    std::vector<CCoordinate> unvisitedCoordinates = m_coordinates;
     double minDistance          = 0;
     int32_t index               = 0;
     int32_t minDistanceIndex    = 0;
     int32_t currentIndex        = 0;
     std::vector<int32_t> unvisitedCoordinates;
+
     //Initialize the unvisited vector to index
     for (index = 0; index < m_coordinatesCount; index++)
         unvisitedCoordinates.push_back(index);
@@ -101,9 +103,9 @@ std::vector<CCoordinate> CDijkstra::FindShortestPath(
     }
 
     //The djacent coordinates to the current coordinate have the value on distances matrix
+    m_preCoordinateIndexes[m_startIndex] = m_startIndex;
     unvisitedCoordinates.erase(unvisitedCoordinates.begin() + m_startIndex);
     currentIndex = m_startIndex;
-    //while (!unvisitedCoordinates.empty()){
     for (int32_t counter = 0; counter < m_coordinatesCount; counter++){
         //Find the nearest adjacent coordinate to
         minDistance         = INFINITE;
@@ -118,7 +120,8 @@ std::vector<CCoordinate> CDijkstra::FindShortestPath(
             }else if (m_distances[index][index] >
                       m_distances[currentIndex][currentIndex] + m_distances[currentIndex][index] &&
                       INFINITE != m_distances[currentIndex][index]){
-                m_distances[index][index] = m_distances[currentIndex][currentIndex] + m_distances[currentIndex][index];
+                m_distances[index][index]       = m_distances[currentIndex][currentIndex] + m_distances[currentIndex][index];
+                m_preCoordinateIndexes[index]   = currentIndex;
             }
 
             if ((currentIndex != index && INFINITE != m_distances[currentIndex][index]) &&
@@ -137,13 +140,16 @@ std::vector<CCoordinate> CDijkstra::FindShortestPath(
                 std::find(unvisitedCoordinates.begin(), unvisitedCoordinates.end(), minDistanceIndex);
             if (currentCoordinate == unvisitedCoordinates.end())
                 if (unvisitedCoordinates.size() > 0)
-                    currentIndex = unvisitedCoordinates[0];//!
+                    currentIndex = unvisitedCoordinates[0];
                 else
                     break;
             else
                 currentIndex = minDistanceIndex;
         }else{
-            currentIndex = unvisitedCoordinates[0];//!
+            if (unvisitedCoordinates.size() > 0)
+                currentIndex = unvisitedCoordinates[0];
+            else
+                break;
         }
 
         //Remove current coordinate from unvisited coordinates
@@ -152,9 +158,23 @@ std::vector<CCoordinate> CDijkstra::FindShortestPath(
         if (currentCoordinate != unvisitedCoordinates.end())
             unvisitedCoordinates.erase(currentCoordinate);
         else
-            currentIndex = unvisitedCoordinates[0];//!
-        int32_t xxx = 0;
+            if (unvisitedCoordinates.size() > 0)
+                currentIndex = unvisitedCoordinates[0];
+            else
+                break;
     }
+
+    //Make the path
+
+
+
+    shortestPath.clear();
+    shortestPath.push_back(m_coordinates[m_endIndex]);
+    for (;m_endIndex != m_startIndex;){
+        shortestPath.push_back(m_coordinates[m_preCoordinateIndexes[m_endIndex]]);
+        m_endIndex = m_preCoordinateIndexes[m_endIndex];
+    }
+    std::reverse(shortestPath.begin(), shortestPath.end());
 
     return shortestPath;
 
