@@ -24,7 +24,7 @@ public:
     std::vector<CCoordinate> m_coordinates; //! make it private
     std::vector<CCoordinate>::iterator m_coordinateIterator;
     int32_t m_coordinatesCount;
-    int32_t m_row;
+//    int32_t m_row;
     int32_t m_startIndex;
     int32_t m_endIndex;
 

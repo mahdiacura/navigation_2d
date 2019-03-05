@@ -6,7 +6,7 @@ void CDijkstra::AddWay(CWay _way){
 
 CDijkstra::CDijkstra(){
     m_coordinatesCount  = 0;
-    m_row               = 0;
+//    m_row               = 0;
 }
 
 CDijkstra::~CDijkstra(){
@@ -19,8 +19,8 @@ void CDijkstra::FreeMemory(){
 
 void CDijkstra::AddCoordinate(CCoordinate _coordinate){
     //Set 0 to digonal row of distances matrix
-    m_row = m_coordinates.size();
-    m_distances[m_row][m_row] = 0;
+    //m_row = m_coordinates.size();
+    //m_distances[m_row][m_row] = 0;
     m_coordinates.push_back(_coordinate);
 }
 
@@ -77,6 +77,15 @@ int32_t CDijkstra::GetIndex(CCoordinate & _coordinate){
 std::vector<CCoordinate> CDijkstra::FindShortestPath(
     CCoordinate _source, CCoordinate _destination){
     std::vector<CCoordinate> shortestPath;
+//    std::vector<CCoordinate> unvisitedCoordinates = m_coordinates;
+    double minDistance          = 0;
+    int32_t index               = 0;
+    int32_t minDistanceIndex    = 0;
+    int32_t currentIndex        = 0;
+    std::vector<int32_t> unvisitedCoordinates;
+    //Initialize the unvisited vector to index
+    for (index = 0; index < m_coordinatesCount; index++)
+        unvisitedCoordinates.push_back(index);
 
     //Find the index of coordinates in distances matrix
     m_startIndex = GetIndex(_source);
@@ -89,6 +98,62 @@ std::vector<CCoordinate> CDijkstra::FindShortestPath(
     if (-1 == m_endIndex){
         std::cout << "The destination point doesn't exist in map\n";
         goto error;
+    }
+
+    //The djacent coordinates to the current coordinate have the value on distances matrix
+    unvisitedCoordinates.erase(unvisitedCoordinates.begin() + m_startIndex);
+    currentIndex = m_startIndex;
+    //while (!unvisitedCoordinates.empty()){
+    for (int32_t counter = 0; counter < m_coordinatesCount; counter++){
+        //Find the nearest adjacent coordinate to
+        minDistance         = INFINITE;
+        minDistanceIndex    = -1;
+        for (index = 0; index < m_coordinatesCount; index++){
+            //Initialize the distance from source to current coordinate
+            if (INFINITE == m_distances[index][index]){
+                if (currentIndex == index)
+                    m_distances[index][index] = 0;
+                else
+                    m_distances[index][index] = m_distances[currentIndex][index];//! check it
+            }else if (m_distances[index][index] >
+                      m_distances[currentIndex][currentIndex] + m_distances[currentIndex][index] &&
+                      INFINITE != m_distances[currentIndex][index]){
+                m_distances[index][index] = m_distances[currentIndex][currentIndex] + m_distances[currentIndex][index];
+            }
+
+            if ((currentIndex != index && INFINITE != m_distances[currentIndex][index]) &&
+                (minDistance > m_distances[currentIndex][index] || INFINITE == minDistance)){
+                minDistance         = m_distances[currentIndex][index];
+                minDistanceIndex    = index;
+            }
+        }
+
+        if (INFINITE != minDistanceIndex){
+            m_distances[minDistanceIndex][minDistanceIndex] =
+                m_distances[currentIndex][currentIndex] + m_distances[currentIndex][minDistanceIndex];
+
+            //Check is there the minDistanceIndex in the unvisisted list or not
+            std::vector<int32_t>::iterator currentCoordinate =
+                std::find(unvisitedCoordinates.begin(), unvisitedCoordinates.end(), minDistanceIndex);
+            if (currentCoordinate == unvisitedCoordinates.end())
+                if (unvisitedCoordinates.size() > 0)
+                    currentIndex = unvisitedCoordinates[0];//!
+                else
+                    break;
+            else
+                currentIndex = minDistanceIndex;
+        }else{
+            currentIndex = unvisitedCoordinates[0];//!
+        }
+
+        //Remove current coordinate from unvisited coordinates
+        std::vector<int32_t>::iterator currentCoordinate =
+            std::find(unvisitedCoordinates.begin(), unvisitedCoordinates.end(), currentIndex);
+        if (currentCoordinate != unvisitedCoordinates.end())
+            unvisitedCoordinates.erase(currentCoordinate);
+        else
+            currentIndex = unvisitedCoordinates[0];//!
+        int32_t xxx = 0;
     }
 
     return shortestPath;
