@@ -32,21 +32,29 @@ void CShapeFile::OpenFile(std::string _filePath){
         m_ways.push_back(
             CWay(
                 CCoordinate(polyline->points[0].x, polyline->points[0].y, 0),
-                CCoordinate(polyline->points[1].x, polyline->points[1].y, 0)));
+                CCoordinate(polyline->points[1].x, polyline->points[1].y, 0),
+                true));
 
-        //Update the rectangle
-        //Left
-        if (polyline->points[0].x < m_area.m_left)     m_area.m_left      = polyline->points[0].x;
-        if (polyline->points[1].x < m_area.m_left)     m_area.m_left      = polyline->points[1].x;
-        //Right
-        if (polyline->points[0].x > m_area.m_right)    m_area.m_right     = polyline->points[0].x;
-        if (polyline->points[1].x > m_area.m_right)    m_area.m_right     = polyline->points[1].x;
-        //Top
-        if (polyline->points[0].y < m_area.m_top)      m_area.m_top       = polyline->points[0].y;
-        if (polyline->points[1].y < m_area.m_top)      m_area.m_top       = polyline->points[1].y;
-        //Bottom
-        if (polyline->points[0].y > m_area.m_bottom)   m_area.m_bottom    = polyline->points[0].y;
-        if (polyline->points[1].y > m_area.m_bottom)   m_area.m_bottom    = polyline->points[1].y;
+        if (0 == x){    //Initialize the area
+            m_area.m_left   = polyline->points[0].x;
+            m_area.m_right  = polyline->points[0].y;
+            m_area.m_top    = polyline->points[0].x;
+            m_area.m_bottom = polyline->points[0].y;
+        }else{
+            //Update the rectangle
+            //Left
+            if (polyline->points[0].x < m_area.m_left)     m_area.m_left      = polyline->points[0].x;
+            if (polyline->points[1].x < m_area.m_left)     m_area.m_left      = polyline->points[1].x;
+            //Right
+            if (polyline->points[0].x > m_area.m_right)    m_area.m_right     = polyline->points[0].x;
+            if (polyline->points[1].x > m_area.m_right)    m_area.m_right     = polyline->points[1].x;
+            //Top
+            if (polyline->points[0].y < m_area.m_top)      m_area.m_top       = polyline->points[0].y;
+            if (polyline->points[1].y < m_area.m_top)      m_area.m_top       = polyline->points[1].y;
+            //Bottom
+            if (polyline->points[0].y > m_area.m_bottom)   m_area.m_bottom    = polyline->points[0].y;
+            if (polyline->points[1].y > m_area.m_bottom)   m_area.m_bottom    = polyline->points[1].y;
+        }
 
         /* Done with the polyline; it is our responsibility to free it. */
         free_polyline_shape(polyline);
@@ -57,8 +65,6 @@ void CShapeFile::OpenFile(std::string _filePath){
     free_shapes(pShapes);
     /* We're done with the shapefile; close it. */
     close_shapefile(pShapefile);
-
-
 
     m_isOpen = true;
 }

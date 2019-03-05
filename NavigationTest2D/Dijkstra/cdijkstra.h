@@ -1,17 +1,26 @@
 #ifndef CDIJKSTRA_H
 #define CDIJKSTRA_H
 
-#include "ccoordinate.h"
+#include "../Coordinate/ccoordinate.h"
 #include <vector>
+#include "../Coordinate/cway.h"
+#include <algorithm>
 
 class CDijkstra{
 public:
-    void AddCoordinate(CCoordinate _coordinate);
+    void AddWay(CWay _coordinate);
+//    std::vector<CCoordinate> FindShortestPath(
 
-private:
-    std::vector<CCoordinate> m_coordinates;
+    CDijkstra();
+    ~CDijkstra();
+//private:
+    std::vector<std::vector<double>> m_distances;
+    std::vector<CWay> m_ways;//! make it private
+    std::vector<CCoordinate> m_coordinates; //! make it private
+    int32_t m_coordinatesCount;
 
-    //void SetDistance(CCoordinate _sourceCoordinate, CCoordinate _destinationCoordinate, float _distance);
+    void GenerateDistancesMatrix(int32_t _coordinatesCount);
+    void FreeMemory();
 };
 
 #endif
