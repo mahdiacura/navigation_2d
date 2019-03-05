@@ -65,8 +65,35 @@ void CDijkstra::GenerateDistancesMatrix(int32_t _coordinatesCount){
 
         SetDistance(*ways);
     }
-
-
-    int32_t x = 0;
-
 }
+
+int32_t CDijkstra::GetIndex(CCoordinate & _coordinate){
+    m_coordinateIterator = std::find(m_coordinates.begin(), m_coordinates.end(), _coordinate);
+    if (m_coordinates.end() == m_coordinateIterator)return -1;
+
+    return (m_coordinateIterator - m_coordinates.begin());
+}
+
+std::vector<CCoordinate> CDijkstra::FindShortestPath(
+    CCoordinate _source, CCoordinate _destination){
+    std::vector<CCoordinate> shortestPath;
+
+    //Find the index of coordinates in distances matrix
+    m_startIndex = GetIndex(_source);
+    if (-1 == m_startIndex){
+        std::cout << "The source point doesn't exist in map\n";
+        goto error;
+    }
+
+    m_endIndex = GetIndex(_destination);
+    if (-1 == m_endIndex){
+        std::cout << "The destination point doesn't exist in map\n";
+        goto error;
+    }
+
+    return shortestPath;
+
+    error:;
+    return std::vector<CCoordinate>(0);
+}
+

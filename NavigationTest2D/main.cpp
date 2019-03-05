@@ -10,8 +10,7 @@
 
 int main(int argc, char *argv[])
 {
-    std::string path = "E:/Workstation/C++/NavigationTest2D/Data/test/test.shp";
-
+    //std::string path = "E:/Workstation/C++/NavigationTest2D/Data/test/test.shp";
     //CShapeFile shapeFile;
     //shapeFile.OpenFile(path);
 
@@ -26,6 +25,19 @@ int main(int argc, char *argv[])
     dijkstra.AddWay(CWay(f, c, true));
     dijkstra.GenerateDistancesMatrix(6);
 
+
+    std::vector<CCoordinate> shortestPath =
+        dijkstra.FindShortestPath(a, c);
+    std::cout << "\nShortest path " << shortestPath.size() << " points:\n";
+    for (std::vector<CCoordinate>::iterator coordinates = shortestPath.begin();
+         coordinates != shortestPath.end();
+         coordinates++){
+        std::cout << "(" <<
+            coordinates->m_x << ", " <<
+            coordinates->m_y << ", " <<
+            coordinates->m_z << ")\n";
+    }
+    std::cout.flush();
 
     QApplication application(argc, argv);
     MainWindow window;

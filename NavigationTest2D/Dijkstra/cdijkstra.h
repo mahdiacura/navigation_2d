@@ -5,13 +5,16 @@
 #include <vector>
 #include "../Coordinate/cway.h"
 #include <algorithm>
+#include <iostream>
 
 #define INFINITE -1
 
 class CDijkstra{
 public:
     void AddWay(CWay _coordinate);
-//    std::vector<CCoordinate> FindShortestPath(
+    std::vector<CCoordinate> FindShortestPath(
+        CCoordinate _source,
+        CCoordinate _destination);
 
     CDijkstra();
     ~CDijkstra();
@@ -25,6 +28,7 @@ public:
     int32_t m_startIndex;
     int32_t m_endIndex;
 
+    int32_t GetIndex(CCoordinate & _coordinate);
     void SetDistance(CWay & _way);
     void AddCoordinate(CCoordinate _coordinate);
     void GenerateDistancesMatrix(int32_t _coordinatesCount);
