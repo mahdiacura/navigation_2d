@@ -102,6 +102,10 @@ OpenGLWindow::~OpenGLWindow()
         delete[] m_shortestPathBuffer;
     m_shortestPathBuffer = nullptr;
 
+    if (nullptr != m_waysBuffer)
+        delete[] m_waysBuffer;
+    m_waysBuffer = nullptr;
+
     if (nullptr != m_shortestPathColors)
         delete[] m_shortestPathColors;
     m_shortestPathColors = nullptr;
@@ -136,7 +140,6 @@ void OpenGLWindow::initialize()
 //    glEnable(GL_CULL_FACE);//Disable back face culling
 
     //Navigate
-//    CCoordinate a(0, 0, 0), b(5, 1, 0), c(7, 0, 0), d(3, 2, 0), e(4, 5, 0), f(9, 5, 0);
     CCoordinate a(0, 0, 0), b(5, 0, 1), c(7, 0, 0), d(3, 0, 2), e(4, 0, 5), f(9, 0, 5);
     m_dijkstra.AddWay(CWay(a, b, true));
     m_dijkstra.AddWay(CWay(a, d, false));
@@ -151,6 +154,7 @@ void OpenGLWindow::initialize()
     m_waysCount = m_dijkstra.m_ways.size();
 
     {
+        //Shortest Path
         m_shortestPathCount = (m_shortestPath.size() - 1) * 2;
         m_shortestPathBuffer = new GLdouble[m_shortestPathCount * 3];
         int32_t coordinateCounter = 0;
@@ -164,6 +168,21 @@ void OpenGLWindow::initialize()
             m_shortestPathBuffer[index + 4] = m_shortestPath[coordinateCounter + 1].m_y;
             m_shortestPathBuffer[index + 5] = m_shortestPath[coordinateCounter + 1].m_z;
             coordinateCounter++;
+        }
+
+        m_waysCount = m_dijkstra.m_ways.size() * 2;
+        m_waysBuffer = new GLdouble[m_waysCount * 3];
+        int32_t waysCounter = 0;
+        for (int32_t index = 0; index < (m_waysCount * 3) - 3 * 2; index += 6){
+            //Start Coordinate
+            m_waysBuffer[index + 0] = m_dijkstra.m_ways[waysCounter].m_startCoordinate.m_x;
+            m_waysBuffer[index + 1] = m_dijkstra.m_ways[waysCounter].m_startCoordinate.m_y;
+            m_waysBuffer[index + 2] = m_dijkstra.m_ways[waysCounter].m_startCoordinate.m_z;
+            //End Coordinate
+            m_waysBuffer[index + 3] = m_dijkstra.m_ways[waysCounter + 1].m_startCoordinate.m_x;
+            m_waysBuffer[index + 4] = m_dijkstra.m_ways[waysCounter + 1].m_startCoordinate.m_y;
+            m_waysBuffer[index + 5] = m_dijkstra.m_ways[waysCounter + 1].m_startCoordinate.m_z;
+            waysCounter++;
         }
     }
 
@@ -181,13 +200,11 @@ void OpenGLWindow::initialize()
         m_pathColors = new GLfloat[m_waysCount * 3];
         for (int32_t index = 0; index < (m_waysCount * 3) - 3; index += 3){
             //blue Color
-            m_pathColors[index + 0] = 0;
-            m_pathColors[index + 1] = 0;
+            m_pathColors[index + 0] = 1;
+            m_pathColors[index + 1] = 1;
             m_pathColors[index + 2] = 1;
         }
     }
-
-
 
 }
 
@@ -202,8 +219,8 @@ void OpenGLWindow::render()
 
         QMatrix4x4 matrix;
         matrix.perspective(60.0f, 4.0f/3.0f, 0.1, 100);
-        matrix.translate(-2, -2, -15);
-        matrix.rotate(0, 0, 1, 0);
+        matrix.translate(-3, -3, -18);
+        matrix.rotate(15, 1, 0, 0);
         m_program->setUniformValue(m_matrixUniform, matrix);
 
         //Draw Axises
@@ -212,7 +229,7 @@ void OpenGLWindow::render()
             glVertexAttribPointer(m_colorAttribute, 3, GL_FLOAT, GL_FALSE, 0, axisesColors);
             glEnableVertexAttribArray(m_positionAttribute);
             glEnableVertexAttribArray(m_colorAttribute);
-            glLineWidth(1.1);
+            glLineWidth(1.2);
             glDrawArrays(GL_LINES, 0, 6);
             glDisableVertexAttribArray(m_colorAttribute);
             glDisableVertexAttribArray(m_positionAttribute);
@@ -229,7 +246,6 @@ void OpenGLWindow::render()
 //                m_dijkstra.m_area.m_right, m_dijkstra.m_area.m_bottom, m_dijkstra.m_area.m_bottom,
 //                //Top-Right
 //                m_dijkstra.m_area.m_right, m_dijkstra.m_area.m_bottom, m_dijkstra.m_area.m_top
-
 //            };
 //            glVertexAttribPointer(m_positionAttribute, 3, GL_DOUBLE, GL_FALSE, 0, area_vertices);
 //            glVertexAttribPointer(m_colorAttribute, 3, GL_FLOAT, GL_FALSE, 0, areaColors);
@@ -241,25 +257,20 @@ void OpenGLWindow::render()
 //            glDisableVertexAttribArray(m_positionAttribute);
 //        }
 
-        //Draw Coordinates
+        //Draw Ways
         {
-
+            glVertexAttribPointer(m_positionAttribute, 3, GL_DOUBLE, GL_FALSE, 0, m_waysBuffer);
+            glVertexAttribPointer(m_colorAttribute, 3, GL_FLOAT, GL_FALSE, 0, m_pathColors);
+            glEnableVertexAttribArray(m_positionAttribute);
+            glEnableVertexAttribArray(m_colorAttribute);
+            glLineWidth(1);
+            glDrawArrays(GL_LINES, 0, m_waysCount);
+            glDisableVertexAttribArray(m_colorAttribute);
+            glDisableVertexAttribArray(m_positionAttribute);
         }
 
         //Draw Shortest Path
         {
-            GLdouble shortestPathBuffer[] = {
-                //X
-                3, 0, 2,
-                4, 0, 5,
-                //Y
-                4, 0, 5,
-                5, 0, 1,
-                //Z
-                5, 0, 1,
-                7, 0, 0
-            };
-
             glVertexAttribPointer(m_positionAttribute, 3, GL_DOUBLE, GL_FALSE, 0, m_shortestPathBuffer);
             glVertexAttribPointer(m_colorAttribute, 3, GL_FLOAT, GL_FALSE, 0, m_shortestPathColors);
             glEnableVertexAttribArray(m_positionAttribute);
