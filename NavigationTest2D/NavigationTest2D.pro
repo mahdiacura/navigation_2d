@@ -31,8 +31,8 @@ SOURCES += \
 	ShapeFile/cshapefile.cpp \
 	Coordinate/ccoordinate.cpp \
 	Coordinate/cway.cpp \
-	OpenGL/mainwidget.cpp \
-    Coordinate/cbox.cpp
+    Coordinate/cbox.cpp \
+    OpenGL/openglwindow.cpp
 
 HEADERS += \
 	mainwindow.h \
@@ -43,8 +43,8 @@ HEADERS += \
 	ShapeFile/cshapefile.h \
 	Coordinate/ccoordinate.h \
 	Coordinate/cway.h \
-	OpenGL/mainwidget.h \
-    Coordinate/cbox.h
+    Coordinate/cbox.h \
+    OpenGL/openglwindow.h
 
 
 

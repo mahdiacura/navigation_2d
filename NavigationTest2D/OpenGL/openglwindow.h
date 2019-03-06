@@ -1,9 +1,11 @@
+#ifndef OPENGL_WINDOW_H
+#define OPENGL_WINDOW
 /****************************************************************************
 **
 ** Copyright (C) 2016 The Qt Company Ltd.
 ** Contact: https://www.qt.io/licensing/
 **
-** This file is part of the QtCore module of the Qt Toolkit.
+** This file is part of the documentation of the Qt Toolkit.
 **
 ** $QT_BEGIN_LICENSE:BSD$
 ** Commercial License Usage
@@ -48,57 +50,74 @@
 **
 ****************************************************************************/
 
+static const char *vertexShaderSource =
+    "attribute highp vec4 posAttr;\n"
+    "attribute lowp vec4 colAttr;\n"
+    "varying lowp vec4 col;\n"
+    "uniform highp mat4 matrix;\n"
+    "void main() {\n"
+    "   col = colAttr;\n"
+    "   gl_Position = matrix * posAttr;\n"
+    "}\n";
 
-#ifndef MAINWIDGET_H
-#define MAINWIDGET_H
+static const char *fragmentShaderSource =
+    "varying lowp vec4 col;\n"
+    "void main() {\n"
+    "   gl_FragColor = col;\n"
+    "}\n";
 
-#include <QOpenGLWidget>
-#include <QOpenGLFunctions>
-#include <QMatrix4x4>
-#include <QQuaternion>
-#include <QVector2D>
-#include <QBasicTimer>
-#include <QOpenGLShaderProgram>
-#include <QOpenGLTexture>
 
-#include <QCoreApplication>
+#include <QtGui/QWindow>
+#include <QtGui/QOpenGLFunctions>
+#include <QtGui/QGuiApplication>
+#include <QtGui/QMatrix4x4>
+#include <QtGui/QOpenGLShaderProgram>
+#include <QtGui/QScreen>
+
 #include "Dijkstra/cdijkstra.h"
+#include <vector>
 
+class QPainter;
+class QOpenGLContext;
+class QOpenGLPaintDevice;
 
-class GeometryEngine;
-
-class MainWidget : public QOpenGLWidget, protected QOpenGLFunctions
+class OpenGLWindow : public QWindow, protected QOpenGLFunctions
 {
     Q_OBJECT
-
 public:
-    explicit MainWidget(QWidget *parent = 0);
-    ~MainWidget();
+    explicit OpenGLWindow(QWindow *parent = 0);
+    ~OpenGLWindow();
+
+    virtual void render(QPainter *painter);
+    virtual void render();
+
+    virtual void initialize();
+
+    void setAnimating(bool animating);
+
+public slots:
+    void renderLater();
+    void renderNow();
 
 protected:
-    void mousePressEvent(QMouseEvent *e) override;
-    void mouseReleaseEvent(QMouseEvent *e) override;
-    void timerEvent(QTimerEvent *e) override;
+    bool event(QEvent *event) override;
 
-    void initializeGL() override;
-    void resizeGL(int w, int h) override;
-    void paintGL() override;
-
-    void initShaders();
-    void initTextures();
+    void exposeEvent(QExposeEvent *event) override;
 
 private:
-    QBasicTimer timer;
-    QOpenGLShaderProgram program;
+    //Navigation
+    CDijkstra m_dijkstra;
+    std::vector<CCoordinate> m_shortestPath;
+    double m_pathDistance = 0;
 
-    QOpenGLTexture *texture = nullptr;
-
-    QMatrix4x4 projection;
-
-    QVector2D mousePressPosition;
-    QVector3D rotationAxis;
-    qreal angularSpeed;
-    QQuaternion rotation;
+    GLuint m_posAttr;
+    GLuint m_colAttr;
+    GLuint m_matrixUniform;
+    QOpenGLShaderProgram *m_program;
+    int m_frame;
+    bool m_animating;
+    QOpenGLContext *m_context;
+    QOpenGLPaintDevice *m_device;
 };
 
-#endif // MAINWIDGET_H
+#endif

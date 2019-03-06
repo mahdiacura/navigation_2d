@@ -6,7 +6,7 @@
 #include <QLabel>
 #include <QSurfaceFormat>
 #ifndef QT_NO_OPENGL
-#include "OpenGL/mainwidget.h"
+#include "OpenGL/openglwindow.h"
 #endif
 
 #include <algorithm>
@@ -24,9 +24,9 @@ int main(int argc, char *argv[])
     application.setApplicationName("2D Navigation");
     application.setApplicationVersion("1.2");
     #ifndef QT_NO_OPENGL
-        MainWidget widget;
-        widget.resize(1280, 720);
-        widget.show();
+        OpenGLWindow openGLWindow;
+        openGLWindow.resize(1280, 720);
+        openGLWindow.show();
     #else
         QLabel note("OpenGL Support required");
         note.show();
