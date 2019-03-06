@@ -55,6 +55,38 @@
 #include <QtGui/QOpenGLPaintDevice>
 #include <QtGui/QPainter>
 
+//Vertices
+//Axis
+GLdouble axisesVertices[] = {
+    //X
+    -100, 0, 0,
+    100, 0, 0,
+    //Y
+    0, -100, 0,
+    0, 100, 0,
+    //Z
+    0, 0, -100,
+    0, 0, 100
+};
+GLfloat axisesColors[] = {
+    //X
+    1, 0, 0,
+    1, 0, 0,
+    //Y
+    1, 1, 0,
+    1, 1, 0,
+    //Z
+    0, 0, 1,
+    0, 0, 1
+};
+//Area of Coordinates
+GLfloat areaColors[] = {
+    1, 1, 1,
+    1, 1, 1,
+    1, 1, 1,
+    1, 1, 1
+};
+
 OpenGLWindow::OpenGLWindow(QWindow *parent)
     : QWindow(parent)
     , m_animating(false)
@@ -66,6 +98,14 @@ OpenGLWindow::OpenGLWindow(QWindow *parent)
 
 OpenGLWindow::~OpenGLWindow()
 {
+    if (nullptr != m_shortestPathColors)
+        delete[] m_shortestPathColors;
+    m_shortestPathColors = nullptr;
+
+    if (nullptr != m_pathColors)
+        delete[] m_pathColors;
+    m_pathColors = nullptr;
+
     delete m_device;
 }
 void OpenGLWindow::render(QPainter *painter)
@@ -79,12 +119,21 @@ void OpenGLWindow::initialize()
     m_program->addShaderFromSourceCode(QOpenGLShader::Vertex, vertexShaderSource);
     m_program->addShaderFromSourceCode(QOpenGLShader::Fragment, fragmentShaderSource);
     m_program->link();
-    m_posAttr = m_program->attributeLocation("posAttr");
-    m_colAttr = m_program->attributeLocation("colAttr");
-    m_matrixUniform = m_program->uniformLocation("matrix");
+    m_positionAttribute = m_program->attributeLocation("posAttr");
+    m_colorAttribute    = m_program->attributeLocation("colAttr");
+    m_matrixUniform     = m_program->uniformLocation("matrix");
+
+//    glClearColor(0.32, 0.42, 0.61, 1);
+//    glClearDepth(1.0f);         // Set background depth to farthest
+    glShadeModel(GL_SMOOTH);    // Enable smooth shading
+    glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);  // Nice perspective corrections
+//    glEnable(GL_DEPTH_TEST); // Enable depth buffer
+//    glDepthFunc(GL_LEQUAL);    // Set the type of depth-test
+//    glEnable(GL_CULL_FACE);//Disable back face culling
 
     //Navigate
-    CCoordinate a(0, 0, 0), b(5, 1, 0), c(7, 0, 0), d(3, 2, 0), e(4, 5, 0), f(9, 5, 0);
+//    CCoordinate a(0, 0, 0), b(5, 1, 0), c(7, 0, 0), d(3, 2, 0), e(4, 5, 0), f(9, 5, 0);
+    CCoordinate a(0, 0, 0), b(5, 0, 1), c(7, 0, 0), d(3, 0, 2), e(4, 0, 5), f(9, 0, 5);
     m_dijkstra.AddWay(CWay(a, b, true));
     m_dijkstra.AddWay(CWay(a, d, false));
     m_dijkstra.AddWay(CWay(b, c, true));
@@ -95,6 +144,26 @@ void OpenGLWindow::initialize()
     m_dijkstra.AddWay(CWay(e, b, true));
     m_dijkstra.GenerateDistancesMatrix(6);
     m_shortestPath = m_dijkstra.FindShortestPath(d, c, m_pathDistance);
+    m_waysCount = m_dijkstra.m_ways.size();
+
+//    m_coordinatesBuffer = new GLdouble[
+    m_shortestPathColors = new GLfloat[m_waysCount * 3];
+    for (int32_t index = 0; index < (m_waysCount * 3) - 3; index += 3){
+        //Yellow Color
+        m_shortestPathColors[index + 0] = 1;
+        m_shortestPathColors[index + 1] = 1;
+        m_shortestPathColors[index + 2] = 0;
+    }
+
+    m_pathColors = new GLfloat[m_waysCount * 3];
+    for (int32_t index = 0; index < (m_waysCount * 3) - 3; index += 3){
+        //blue Color
+        m_pathColors[index + 0] = 0;
+        m_pathColors[index + 1] = 0;
+        m_pathColors[index + 2] = 1;
+    }
+
+
 }
 
 void OpenGLWindow::render()
@@ -107,37 +176,76 @@ void OpenGLWindow::render()
         m_program->bind();
 
         QMatrix4x4 matrix;
-        matrix.perspective(60.0f, 4.0f/3.0f, 0.1f, 100.0f);
-        matrix.translate(0, 0, -5);
-        matrix.rotate(0, 0, 0, 0);
-
+        matrix.perspective(60.0f, 4.0f/3.0f, 0.1, 100);
+        matrix.translate(-2, -2, -15);
+        matrix.rotate(0, 0, 1, 0);
         m_program->setUniformValue(m_matrixUniform, matrix);
 
-        GLfloat vertices[] = {
-            0, 1, 0,
-            -1, 0, 0,
-            1, 0, 0
-        };
+        //Draw Axises
+        {
+            glVertexAttribPointer(m_positionAttribute, 3, GL_DOUBLE, GL_FALSE, 0, axisesVertices);
+            glVertexAttribPointer(m_colorAttribute, 3, GL_FLOAT, GL_FALSE, 0, axisesColors);
+            glEnableVertexAttribArray(m_positionAttribute);
+            glEnableVertexAttribArray(m_colorAttribute);
+            glLineWidth(1.1);
+            glDrawArrays(GL_LINES, 0, 6);
+            glDisableVertexAttribArray(m_colorAttribute);
+            glDisableVertexAttribArray(m_positionAttribute);
+        }
 
-        GLfloat colors[] = {
-            1.0f, 0.0f, 0.0f,
-            0.0f, 1.0f, 0.0f,
-            0.0f, 0.0f, 1.0f
-        };
+//        //Draw area of coordinates
+//        {
+//            GLdouble area_vertices[] = {
+//                //Top-Left
+//                m_dijkstra.m_area.m_left, m_dijkstra.m_area.m_bottom, m_dijkstra.m_area.m_top,
+//                //Bottom-Left
+//                m_dijkstra.m_area.m_left, m_dijkstra.m_area.m_bottom, m_dijkstra.m_area.m_bottom,
+//                //Bottom-Right
+//                m_dijkstra.m_area.m_right, m_dijkstra.m_area.m_bottom, m_dijkstra.m_area.m_bottom,
+//                //Top-Right
+//                m_dijkstra.m_area.m_right, m_dijkstra.m_area.m_bottom, m_dijkstra.m_area.m_top
 
-        glVertexAttribPointer(m_posAttr, 3, GL_FLOAT, GL_FALSE, 0, vertices);
-        glVertexAttribPointer(m_colAttr, 3, GL_FLOAT, GL_FALSE, 0, colors);
+//            };
+//            glVertexAttribPointer(m_positionAttribute, 3, GL_DOUBLE, GL_FALSE, 0, area_vertices);
+//            glVertexAttribPointer(m_colorAttribute, 3, GL_FLOAT, GL_FALSE, 0, areaColors);
+//            glEnableVertexAttribArray(m_positionAttribute);
+//            glEnableVertexAttribArray(m_colorAttribute);
+//            glLineWidth(1);
+//            glDrawArrays(GL_QUADS, 0, 4);
+//            glDisableVertexAttribArray(m_colorAttribute);
+//            glDisableVertexAttribArray(m_positionAttribute);
+//        }
 
-        glEnableVertexAttribArray(0);
-        glEnableVertexAttribArray(1);
+        //Draw Coordinates
+        {
 
-        glDrawArrays(GL_TRIANGLES, 0, 3);
+        }
 
-        glDisableVertexAttribArray(1);
-        glDisableVertexAttribArray(0);
+        //Draw Shortest Path
+        {
+            GLdouble shortestPath[] = {
+                //X
+                3, 0, 2,
+                4, 0, 5,
+                //Y
+                4, 0, 5,
+                5, 0, 1,
+                //Z
+                5, 0, 1,
+                7, 0, 0
+            };
+
+            glVertexAttribPointer(m_positionAttribute, 3, GL_DOUBLE, GL_FALSE, 0, shortestPath);
+            glVertexAttribPointer(m_colorAttribute, 3, GL_FLOAT, GL_FALSE, 0, m_shortestPathColors);
+            glEnableVertexAttribArray(m_positionAttribute);
+            glEnableVertexAttribArray(m_colorAttribute);
+            glLineWidth(4);
+            glDrawArrays(GL_LINES, 0, m_waysCount);
+            glDisableVertexAttribArray(m_colorAttribute);
+            glDisableVertexAttribArray(m_positionAttribute);
+        }
 
         m_program->release();
-
         ++m_frame;
 }
 

@@ -1,5 +1,3 @@
-#ifndef OPENGL_WINDOW_H
-#define OPENGL_WINDOW
 /****************************************************************************
 **
 ** Copyright (C) 2016 The Qt Company Ltd.
@@ -49,6 +47,8 @@
 ** $QT_END_LICENSE$
 **
 ****************************************************************************/
+#ifndef OPENGL_WINDOW_H
+#define OPENGL_WINDOW
 
 static const char *vertexShaderSource =
     "attribute highp vec4 posAttr;\n"
@@ -65,7 +65,6 @@ static const char *fragmentShaderSource =
     "void main() {\n"
     "   gl_FragColor = col;\n"
     "}\n";
-
 
 #include <QtGui/QWindow>
 #include <QtGui/QOpenGLFunctions>
@@ -109,9 +108,15 @@ private:
     CDijkstra m_dijkstra;
     std::vector<CCoordinate> m_shortestPath;
     double m_pathDistance = 0;
+    //Coordinates Buffer
+//    GLdouble * m_coordinatesBuffer = nullptr;
+    int32_t m_coordinatesCount = 0;
+    int32_t m_waysCount = 0;
+    GLfloat * m_shortestPathColors = nullptr;
+    GLfloat * m_pathColors = nullptr;
 
-    GLuint m_posAttr;
-    GLuint m_colAttr;
+    GLuint m_positionAttribute;
+    GLuint m_colorAttribute;
     GLuint m_matrixUniform;
     QOpenGLShaderProgram *m_program;
     int m_frame;
