@@ -109,8 +109,10 @@ private:
     std::vector<CCoordinate> m_shortestPath;
     double m_pathDistance = 0;
     //Coordinates Buffer
+    GLdouble * m_shortestPathBuffer = nullptr;
+    int32_t m_shortestPathCount = 0;
 //    GLdouble * m_coordinatesBuffer = nullptr;
-    int32_t m_coordinatesCount = 0;
+//    int32_t m_coordinatesCount = 0;
     int32_t m_waysCount = 0;
     GLfloat * m_shortestPathColors = nullptr;
     GLfloat * m_pathColors = nullptr;
