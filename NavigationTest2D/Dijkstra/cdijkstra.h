@@ -9,7 +9,7 @@
 #include <algorithm>
 #include <iostream>
 
-#define INFINITE -1
+#define INFINITE_DISTANCE -1
 
 class CDijkstra{
 public:

@@ -52,8 +52,6 @@
 #ifndef MAINWIDGET_H
 #define MAINWIDGET_H
 
-#include "geometryengine.h"
-
 #include <QOpenGLWidget>
 #include <QOpenGLFunctions>
 #include <QMatrix4x4>
@@ -64,6 +62,8 @@
 #include <QOpenGLTexture>
 
 #include <QCoreApplication>
+#include "Dijkstra/cdijkstra.h"
+
 
 class GeometryEngine;
 
@@ -90,7 +90,6 @@ protected:
 private:
     QBasicTimer timer;
     QOpenGLShaderProgram program;
-    GeometryEngine *geometries = nullptr;
 
     QOpenGLTexture *texture = nullptr;
 

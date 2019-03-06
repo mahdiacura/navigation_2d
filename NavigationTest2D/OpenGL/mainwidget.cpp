@@ -48,16 +48,33 @@
 **
 ****************************************************************************/
 
-
 #include "mainwidget.h"
-
 #include <QMouseEvent>
+#include <cmath>
 
-#include <math.h>
+CDijkstra dijkstra;
+std::vector<CCoordinate> shortestPath;
+double pathDistance = 0;
+
+static const char *vertexShaderSource =
+    "attribute highp vec4 posAttr;\n"
+    "attribute lowp vec4 colAttr;\n"
+    "varying lowp vec4 col;\n"
+    "uniform highp mat4 matrix;\n"
+    "void main() {\n"
+    "   col = colAttr;\n"
+    "   gl_Position = matrix * posAttr;\n"
+    "}\n";
+
+static const char *fragmentShaderSource =
+    "varying lowp vec4 col;\n"
+    "void main() {\n"
+    "   gl_FragColor = col;\n"
+    "}\n";
+
 
 MainWidget::MainWidget(QWidget *parent) :
     QOpenGLWidget(parent),
-    geometries(0),
     texture(0),
     angularSpeed(0)
 {
@@ -68,10 +85,10 @@ MainWidget::~MainWidget()
     // Make sure the context is current when deleting the texture
     // and the buffers.
     makeCurrent();
-    delete texture;
+    if (nullptr != texture)
+        delete texture;
     texture = nullptr;
-    delete geometries;
-    geometries = nullptr;
+
     doneCurrent();
 }
 
@@ -119,23 +136,37 @@ void MainWidget::timerEvent(QTimerEvent *)
 
 void MainWidget::initializeGL()
 {
+    //Navigation
+    CCoordinate a(0, 0, 0), b(5, 1, 0), c(7, 0, 0), d(3, 2, 0), e(4, 5, 0), f(9, 5, 0);
+    dijkstra.AddWay(CWay(a, b, true));
+    dijkstra.AddWay(CWay(a, d, false));
+    dijkstra.AddWay(CWay(b, c, true));
+    dijkstra.AddWay(CWay(d, e, false));
+    dijkstra.AddWay(CWay(e, c, true));
+    dijkstra.AddWay(CWay(d, f, false));
+    dijkstra.AddWay(CWay(f, c, true));
+    dijkstra.AddWay(CWay(e, b, true));
+    dijkstra.GenerateDistancesMatrix(6);
+    shortestPath = dijkstra.FindShortestPath(d, c, pathDistance);
+
+    //Initialize OpenGL
     initializeOpenGLFunctions();
+//    initShaders();
+    program.addShaderFromSourceCode(QOpenGLShader::Vertex, vertexShaderSource);
+    program.addShaderFromSourceCode(QOpenGLShader::Fragment, fragmentShaderSource);
+    program.link();
 
-    glClearColor(0, 0, 0, 1);
+//    initTextures();
 
-    initShaders();
-    initTextures();
+    glClearColor(0.32, 0.42, 0.61, 1);
+    glClearDepth(1.0f);         // Set background depth to farthest
+    glShadeModel(GL_SMOOTH);    // Enable smooth shading
+    glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);  // Nice perspective corrections
+    glEnable(GL_DEPTH_TEST); // Enable depth buffer
+    glDepthFunc(GL_LEQUAL);    // Set the type of depth-test
+//    glEnable(GL_CULL_FACE);//Disable back face culling
 
-    // Enable depth buffer
-    glEnable(GL_DEPTH_TEST);
-
-    // Enable back face culling
-    glEnable(GL_CULL_FACE);
-
-    geometries = new GeometryEngine;
-
-    // Use QBasicTimer because its faster than QTimer
-    timer.start(12, this);
+    timer.start(16, this);// Use QBasicTimer because its faster than QTimer
 }
 
 void MainWidget::initShaders()
@@ -180,7 +211,7 @@ void MainWidget::resizeGL(int w, int h)
     qreal aspect = qreal(w) / qreal(h ? h : 1);
 
     // Set near plane to 3.0, far plane to 7.0, field of view 45 degrees
-    const qreal zNear = 3.0, zFar = 7.0, fov = 45.0;
+    const qreal zNear = 1.0, zFar = 50.0, fov = 45.0;
 
     // Reset projection
     projection.setToIdentity();
@@ -191,22 +222,33 @@ void MainWidget::resizeGL(int w, int h)
 
 void MainWidget::paintGL()
 {
+//glTranslatef(0, 0, -5);
     // Clear color and depth buffer
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    //glLoadIdentity();                //initialize the matrix//replace the current matrix with the identity matrix [Diagonals have 1, others have 0]
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Clear color and depth buffers - optimize- clear when change occurs
 
-    texture->bind();
+    program.bind();
+    //glMatrixMode(GL_MODELVIEW);     //specify which matrix is the current matrix
 
     // Calculate model view transformation
     QMatrix4x4 matrix;
-    matrix.translate(0.0, 0.0, -5.0);
+    matrix.translate(0.0, 0.0, -15.0);
     matrix.rotate(rotation);
 
     // Set modelview-projection matrix
     program.setUniformValue("mvp_matrix", projection * matrix);
 
-    // Use texture unit 0 which contains cube.png
-    program.setUniformValue("texture", 0);
+    //Draw axis
+//    glDisable(GL_TEXTURE_2D);
+    glBegin(GL_QUADS);
+          glColor3f(1.0f, 1.0f, 0.0f);
+          glVertex3f( 1.0f,  1.0f, 1.0f);
+          glVertex3f(-1.0f,  1.0f, 1.0f);
+          glColor3f(1.0f, 1.0f, 0.0f);
+          glVertex3f(-1.0f, -1.0f, 1.0f);
+          glVertex3f( 1.1f, -1.0f, 1.0f);
+    glEnd();
+//    glEnable(GL_TEXTURE_2D);
 
-    // Draw cube geometry
-    geometries->drawCubeGeometry(&program);
+    program.release();
 }

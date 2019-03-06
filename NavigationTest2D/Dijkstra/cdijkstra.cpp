@@ -69,7 +69,7 @@ void CDijkstra::GenerateDistancesMatrix(int32_t _coordinatesCount){
 
     //Clear the distances matrix
     m_distances.clear();//! extra
-    m_distances.resize(m_coordinatesCount, std::vector<double>(m_coordinatesCount, INFINITE));
+    m_distances.resize(m_coordinatesCount, std::vector<double>(m_coordinatesCount, INFINITE_DISTANCE));
     m_preCoordinateIndexes.resize(m_coordinatesCount, -1);
 
     //Extract the coordinates
@@ -97,7 +97,7 @@ int32_t CDijkstra::GetIndex(CCoordinate & _coordinate){
 
 bool CDijkstra::IsConnected(int32_t _startIndex, int32_t _endIndex){
     if (_startIndex == _endIndex)return false;
-    return (INFINITE != m_distances[_startIndex][_endIndex]);
+    return (INFINITE_DISTANCE != m_distances[_startIndex][_endIndex]);
 }
 
 std::vector<CCoordinate> CDijkstra::FindShortestPath(
@@ -133,31 +133,31 @@ std::vector<CCoordinate> CDijkstra::FindShortestPath(
     currentIndex = m_startIndex;
     for (int32_t counter = 0; counter < m_coordinatesCount; counter++){
         //Find the nearest adjacent coordinate to current coordinate
-        minDistance         = INFINITE;
+        minDistance         = INFINITE_DISTANCE;
         minDistanceIndex    = -1;
         for (index = 0; index < m_coordinatesCount; index++){
             if (!IsConnected(currentIndex, index) || index == m_startIndex)continue;
 
             //Initialize the distance from source to current coordinate
-            if (INFINITE == m_distances[index][index]){
+            if (INFINITE_DISTANCE == m_distances[index][index]){
                 m_distances[index][index]  = m_distances[currentIndex][currentIndex] + m_distances[currentIndex][index];
                 m_preCoordinateIndexes[index] = currentIndex;
             }else if (m_distances[index][index] >
                       m_distances[currentIndex][currentIndex] + m_distances[currentIndex][index] &&
-                      INFINITE != m_distances[currentIndex][index]){
+                      INFINITE_DISTANCE != m_distances[currentIndex][index]){
                 m_distances[index][index]       = m_distances[currentIndex][currentIndex] + m_distances[currentIndex][index];
                 m_preCoordinateIndexes[index]   = currentIndex;
             }
 
             if ((index != m_startIndex) &&
-                (minDistance > m_distances[currentIndex][index] || INFINITE == minDistance)){
+                (minDistance > m_distances[currentIndex][index] || INFINITE_DISTANCE == minDistance)){
                 minDistance         = m_distances[currentIndex][index];
                 minDistanceIndex    = index;
             }
         }
 
         //Update the distance and continue
-        if (INFINITE != minDistanceIndex){
+        if (INFINITE_DISTANCE != minDistanceIndex){
             //Check is there the minDistanceIndex in the unvisisted list or not
             std::vector<int32_t>::iterator currentCoordinate =
                 std::find(unvisitedCoordinates.begin(), unvisitedCoordinates.end(), minDistanceIndex);
