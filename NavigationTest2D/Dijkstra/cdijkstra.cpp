@@ -19,6 +19,25 @@ void CDijkstra::FreeMemory(){
 
 void CDijkstra::AddCoordinate(CCoordinate _coordinate){
     m_coordinates.push_back(_coordinate);
+
+    if (1 == m_coordinates.size()){    //Initialize the area
+        m_area.m_left   = _coordinate.m_x;
+        m_area.m_right  = _coordinate.m_x;
+        m_area.m_top    = _coordinate.m_y;
+        m_area.m_bottom = _coordinate.m_y;
+        m_area.m_back   = _coordinate.m_z;
+        m_area.m_front  = _coordinate.m_z;
+    }else{                              //Update the rectangle
+        //X
+        if (_coordinate.m_x < m_area.m_left)    m_area.m_left       = _coordinate.m_x;
+        if (_coordinate.m_x > m_area.m_right)   m_area.m_right      = _coordinate.m_x;
+        //Y
+        if (_coordinate.m_y > m_area.m_top)     m_area.m_top        = _coordinate.m_y;
+        if (_coordinate.m_y < m_area.m_bottom)  m_area.m_bottom     = _coordinate.m_y;
+        //Z
+        if (_coordinate.m_z > m_area.m_back)    m_area.m_back       = _coordinate.m_z;
+        if (_coordinate.m_z < m_area.m_front)   m_area.m_front      = _coordinate.m_z;
+    }
 }
 
 void CDijkstra::SetDistance(CWay & _way){

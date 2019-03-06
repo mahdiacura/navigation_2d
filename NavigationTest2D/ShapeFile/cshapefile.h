@@ -6,7 +6,7 @@
 #include <vector>
 #include "Coordinate/cway.h"
 #include "ShapeFile/Shapefile.h"
-#include "Coordinate/crectangle.h"
+#include "Coordinate/cbox.h"
 
 class CShapeFile{
 public:
@@ -14,7 +14,7 @@ public:
     void CloseFile();
     CWay GetWay(int32_t _wayIndex);
     int32_t GetWaysCount();
-    SRectangle m_area;
+    SBox m_area;
 
     CShapeFile();
     ~CShapeFile();

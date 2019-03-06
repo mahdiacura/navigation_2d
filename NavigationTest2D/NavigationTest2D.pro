@@ -31,9 +31,9 @@ SOURCES += \
 	ShapeFile/cshapefile.cpp \
 	Coordinate/ccoordinate.cpp \
 	Coordinate/cway.cpp \
-	Coordinate/crectangle.cpp \
 	OpenGL/geometryengine.cpp \
-	OpenGL/mainwidget.cpp
+	OpenGL/mainwidget.cpp \
+    Coordinate/cbox.cpp
 
 HEADERS += \
 	mainwindow.h \
@@ -44,9 +44,9 @@ HEADERS += \
 	ShapeFile/cshapefile.h \
 	Coordinate/ccoordinate.h \
 	Coordinate/cway.h \
-	Coordinate/crectangle.h \
 	OpenGL/geometryengine.h \
-	OpenGL/mainwidget.h
+	OpenGL/mainwidget.h \
+    Coordinate/cbox.h
 
 RESOURCES += \
     OpenGL/shaders.qrc

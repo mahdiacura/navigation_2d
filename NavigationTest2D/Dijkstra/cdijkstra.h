@@ -1,7 +1,9 @@
 #ifndef CDIJKSTRA_H
 #define CDIJKSTRA_H
 
+#include "ShapeFile/cshapefile.h"
 #include "../Coordinate/ccoordinate.h"
+#include "../Coordinate/cbox.h"
 #include <vector>
 #include "../Coordinate/cway.h"
 #include <algorithm>
@@ -28,6 +30,7 @@ public:
     int32_t m_coordinatesCount;
     int32_t m_startIndex;
     int32_t m_endIndex;
+    SBox m_area;
 
     bool IsConnected(int32_t _startIndex, int32_t _endIndex);
     int32_t GetIndex(CCoordinate & _coordinate);

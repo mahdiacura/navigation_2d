@@ -63,7 +63,6 @@
 #include <QOpenGLShaderProgram>
 #include <QOpenGLTexture>
 
-#include <iostream>
 #include <QCoreApplication>
 
 class GeometryEngine;

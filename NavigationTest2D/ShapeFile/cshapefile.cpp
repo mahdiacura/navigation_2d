@@ -37,8 +37,8 @@ void CShapeFile::OpenFile(std::string _filePath){
 
         if (0 == x){    //Initialize the area
             m_area.m_left   = polyline->points[0].x;
-            m_area.m_right  = polyline->points[0].y;
-            m_area.m_top    = polyline->points[0].x;
+            m_area.m_right  = polyline->points[0].x;
+            m_area.m_top    = polyline->points[0].y;
             m_area.m_bottom = polyline->points[0].y;
         }else{
             //Update the rectangle

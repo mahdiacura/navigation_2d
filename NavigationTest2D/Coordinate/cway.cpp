@@ -5,13 +5,12 @@ CWay::CWay(CCoordinate _startCoordinate, CCoordinate _endCoordinate, bool _isOne
     m_endCoordinate     = _endCoordinate;
     m_isOneWay          = _isOneWay;
 
-//    m_distance = std::sqrt(
-//        std::pow(m_endCoordinate.m_x - m_startCoordinate.m_x, 2) +
-//        std::pow(m_endCoordinate.m_y - m_startCoordinate.m_y, 2));
-    //Use Delta^2 for permormance
+    //Use Distance^2 for permormance
     m_distance =
         std::pow(m_endCoordinate.m_x - m_startCoordinate.m_x, 2) +
-        std::pow(m_endCoordinate.m_y - m_startCoordinate.m_y, 2);
+        std::pow(m_endCoordinate.m_y - m_startCoordinate.m_y, 2) +
+        std::pow(m_endCoordinate.m_z - m_startCoordinate.m_z, 2);
+
 }
 
 bool CWay::operator!= (const CWay & _way){
