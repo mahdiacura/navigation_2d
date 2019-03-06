@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
+QT       += core gui widgets
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -26,23 +26,31 @@ DEFINES += QT_DEPRECATED_WARNINGS
 SOURCES += \
         main.cpp \
 	mainwindow.cpp \
-    Dijkstra/cdijkstra.cpp \
-    ShapeFile/Shapefile.c \
-    ShapeFile/cshapefile.cpp \
-    Coordinate/ccoordinate.cpp \
-    Coordinate/cway.cpp \
-    Coordinate/crectangle.cpp
+	Dijkstra/cdijkstra.cpp \
+	ShapeFile/Shapefile.c \
+	ShapeFile/cshapefile.cpp \
+	Coordinate/ccoordinate.cpp \
+	Coordinate/cway.cpp \
+	Coordinate/crectangle.cpp \
+	OpenGL/geometryengine.cpp \
+	OpenGL/mainwidget.cpp
 
 HEADERS += \
 	mainwindow.h \
-    Dijkstra/cdijkstra.h \
-    Dijkstra/csystemversion.h \
-    ShapeFile/Shapefile.h \
-    ShapeFile/Shapefile-internal.h \
-    ShapeFile/cshapefile.h \
-    Coordinate/ccoordinate.h \
-    Coordinate/cway.h \
-    Coordinate/crectangle.h
+	Dijkstra/cdijkstra.h \
+	Dijkstra/csystemversion.h \
+	ShapeFile/Shapefile.h \
+	ShapeFile/Shapefile-internal.h \
+	ShapeFile/cshapefile.h \
+	Coordinate/ccoordinate.h \
+	Coordinate/cway.h \
+	Coordinate/crectangle.h \
+	OpenGL/geometryengine.h \
+	OpenGL/mainwidget.h
+
+RESOURCES += \
+    OpenGL/shaders.qrc
+
 
 FORMS += \
         mainwindow.ui

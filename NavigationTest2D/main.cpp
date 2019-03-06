@@ -4,16 +4,34 @@
 #include "ShapeFile/cshapefile.h"
 #include "Dijkstra/cdijkstra.h"
 
-
+#include <QLabel>
+#include <QSurfaceFormat>
+#ifndef QT_NO_OPENGL
+#include "OpenGL/mainwidget.h"
 #endif
+
 #include <algorithm>
 #include <cstdint>
 #include <iostream>
 
 int main(int argc, char *argv[])
 {
+    QApplication application(argc, argv);
 
+    QSurfaceFormat format;
+    format.setDepthBufferSize(24);
+    QSurfaceFormat::setDefaultFormat(format);
 
+    application.setApplicationName("2D Navigation");
+    application.setApplicationVersion("1.2");
+    #ifndef QT_NO_OPENGL
+        MainWidget widget;
+        widget.show();
+    #else
+        QLabel note("OpenGL Support required");
+        note.show();
+    #endif
+    return application.exec();
 
     //std::string path = "E:/Workstation/C++/NavigationTest2D/Data/test/test.shp";
     //CShapeFile shapeFile;
@@ -52,9 +70,10 @@ int main(int argc, char *argv[])
 //    }
 //    std::cout.flush();
 
-    QApplication application(argc, argv);
-    MainWindow window;
-    window.show();
+      //Qt Application
+//    QApplication application(argc, argv);
+//    MainWindow window;
+//    window.show();
 
-    return application.exec();
+//    return application.exec();
 }

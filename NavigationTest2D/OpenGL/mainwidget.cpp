@@ -69,7 +69,9 @@ MainWidget::~MainWidget()
     // and the buffers.
     makeCurrent();
     delete texture;
+    texture = nullptr;
     delete geometries;
+    geometries = nullptr;
     doneCurrent();
 }
 
@@ -105,13 +107,13 @@ void MainWidget::timerEvent(QTimerEvent *)
 
     // Stop rotation when speed goes below threshold
     if (angularSpeed < 0.01) {
-	angularSpeed = 0.0;
-    } else {
-	// Update rotation
-	rotation = QQuaternion::fromAxisAndAngle(rotationAxis, angularSpeed) * rotation;
+        angularSpeed = 0.0;
+    }else{
+        // Update rotation
+        rotation = QQuaternion::fromAxisAndAngle(rotationAxis, angularSpeed) * rotation;
 
-	// Request an update
-	update();
+        // Request an update
+        update();
     }
 }
 
@@ -158,7 +160,8 @@ void MainWidget::initShaders()
 void MainWidget::initTextures()
 {
     // Load cube.png image
-    texture = new QOpenGLTexture(QImage(":/cube.png").mirrored());
+    QImage image(QCoreApplication::applicationDirPath() + "/cube.png");
+    texture = new QOpenGLTexture(image);
 
     // Set nearest filtering mode for texture minification
     texture->setMinificationFilter(QOpenGLTexture::Nearest);
