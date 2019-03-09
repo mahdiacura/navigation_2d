@@ -133,7 +133,7 @@ void OpenGLWindow::initialize()
 
 //    glClearColor(0.32, 0.42, 0.61, 1);
 //    glClearDepth(1.0f);         // Set background depth to farthest
-    glShadeModel(GL_SMOOTH);    // Enable smooth shading
+//    glShadeModel(GL_SMOOTH);    // Enable smooth shading
     glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);  // Nice perspective corrections
 //    glEnable(GL_DEPTH_TEST); // Enable depth buffer
 //    glDepthFunc(GL_LEQUAL);    // Set the type of depth-test
