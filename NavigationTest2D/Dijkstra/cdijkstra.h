@@ -21,6 +21,7 @@ public:
 		CCoordinate _destination,
 		double & _pathDistance,
 		int32_t _coordinatesCount);
+	int32_t FindNearestCoordinate(CCoordinate _coordinate);
 
     CDijkstra();
     ~CDijkstra();

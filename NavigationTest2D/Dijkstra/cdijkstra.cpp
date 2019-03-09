@@ -42,7 +42,7 @@ void CDijkstra::LoadShapeFile(std::string _shapeFilePath){
 	}
 
 	if(shapeDBFileHandle  == NULL ){
-		printf( "Unable to import .shp file\n");
+		printf("Unable to import .shp file\n");
 		return;
 	}
 
@@ -57,10 +57,7 @@ void CDijkstra::LoadShapeFile(std::string _shapeFilePath){
 		CCoordinate startCoordinate	(shape->dfXMin, shape->dfYMin, shape->dfZMin);
 		CCoordinate endCoordinate	(shape->dfXMax, shape->dfYMax, shape->dfZMax);
 		AddWay(CWay(startCoordinate, endCoordinate, isOneWay));
-
-		int x =0;
 	}
-
 
 	//Free memory of shape files
 	SHPClose(shapeFileHandle);
@@ -70,29 +67,30 @@ void CDijkstra::LoadShapeFile(std::string _shapeFilePath){
 void CDijkstra::AddCoordinate(CCoordinate _coordinate){
     m_coordinates.push_back(_coordinate);
 
-    if (1 == m_coordinates.size()){    //Initialize the area
-        m_area.m_left   = _coordinate.m_x;
-        m_area.m_right  = _coordinate.m_x;
-        m_area.m_top    = _coordinate.m_y;
-        m_area.m_bottom = _coordinate.m_y;
-        m_area.m_back   = _coordinate.m_z;
-        m_area.m_front  = _coordinate.m_z;
-    }else{                              //Update the rectangle
-        //X
-        if (_coordinate.m_x < m_area.m_left)    m_area.m_left       = _coordinate.m_x;
-        if (_coordinate.m_x > m_area.m_right)   m_area.m_right      = _coordinate.m_x;
-        //Y
-        if (_coordinate.m_y > m_area.m_top)     m_area.m_top        = _coordinate.m_y;
-        if (_coordinate.m_y < m_area.m_bottom)  m_area.m_bottom     = _coordinate.m_y;
-        //Z
-        if (_coordinate.m_z > m_area.m_back)    m_area.m_back       = _coordinate.m_z;
-        if (_coordinate.m_z < m_area.m_front)   m_area.m_front      = _coordinate.m_z;
-    }
+//    if (1 == m_coordinates.size()){    //Initialize the area
+//        m_area.m_left   = _coordinate.m_x;
+//        m_area.m_right  = _coordinate.m_x;
+//        m_area.m_top    = _coordinate.m_y;
+//        m_area.m_bottom = _coordinate.m_y;
+//        m_area.m_back   = _coordinate.m_z;
+//        m_area.m_front  = _coordinate.m_z;
+//    }else{                              //Update the rectangle
+//        //X
+//        if (_coordinate.m_x < m_area.m_left)    m_area.m_left       = _coordinate.m_x;
+//        if (_coordinate.m_x > m_area.m_right)   m_area.m_right      = _coordinate.m_x;
+//        //Y
+//        if (_coordinate.m_y > m_area.m_top)     m_area.m_top        = _coordinate.m_y;
+//        if (_coordinate.m_y < m_area.m_bottom)  m_area.m_bottom     = _coordinate.m_y;
+//        //Z
+//        if (_coordinate.m_z > m_area.m_back)    m_area.m_back       = _coordinate.m_z;
+//        if (_coordinate.m_z < m_area.m_front)   m_area.m_front      = _coordinate.m_z;
+//    }
 }
 
 void CDijkstra::SetDistance(CWay & _way){
     m_startIndex = m_endIndex = -1;
 
+	//! hotspot
     //Start Coordinate
     m_coordinateIterator = std::find(
         m_coordinates.begin(),
@@ -119,8 +117,11 @@ void CDijkstra::GenerateDistancesMatrix(int32_t _coordinatesCount){
 
     //Clear the distances matrix
     m_distances.clear();//! extra
-    m_distances.resize(m_coordinatesCount, std::vector<double>(m_coordinatesCount, INFINITE_DISTANCE));
-    m_preCoordinateIndexes.resize(m_coordinatesCount, -1);
+	//! optimise. high memroy. count the coordinates instead of ways and then optimise
+	m_distances.resize(m_ways.size() * 2, std::vector<double>(m_ways.size() * 2, INFINITE_DISTANCE));
+	m_preCoordinateIndexes.resize(m_ways.size() * 2, -1);
+//	m_distances.resize(m_coordinatesCount, std::vector<double>(m_coordinatesCount, INFINITE_DISTANCE));
+//	m_preCoordinateIndexes.resize(m_coordinatesCount, -1);
 
     //Extract the coordinates
     for (std::vector<CWay>::iterator ways = m_ways.begin(); ways != m_ways.end(); ways++){
@@ -143,6 +144,33 @@ int32_t CDijkstra::GetIndex(CCoordinate & _coordinate){
     if (m_coordinates.end() == m_coordinateIterator)return -1;
 
     return (m_coordinateIterator - m_coordinates.begin());
+}
+
+int32_t CDijkstra::FindNearestCoordinate(CCoordinate _coordinate){
+	int32_t index			= 0;
+	double_t distance		= 0;
+	double_t minDistance	= INFINITE_DISTANCE;
+	int32_t minIndex		= -1;
+
+	m_coordinatesCount = m_coordinates.size();
+	for (index = 0; index < m_coordinatesCount; index++){
+		distance =
+			std::pow(_coordinate.m_x - m_coordinates[index].m_x, 2) +
+			std::pow(_coordinate.m_y - m_coordinates[index].m_y, 2) +
+			std::pow(_coordinate.m_z - m_coordinates[index].m_z, 2);
+
+		if (0 == distance)return index;
+
+		if (INFINITE_DISTANCE == minDistance){
+			minIndex	= index;
+			minDistance	= distance;
+		}else if (distance < minDistance){
+			minIndex	= index;
+			minDistance	= distance;
+		}
+	}
+
+	return minIndex;
 }
 
 bool CDijkstra::IsConnected(int32_t _startIndex, int32_t _endIndex){
@@ -168,14 +196,20 @@ std::vector<CCoordinate> CDijkstra::FindShortestPath(
     //Find the index of coordinates in distances matrix
     m_startIndex = GetIndex(_source);
     if (-1 == m_startIndex){
-        std::cout << "The source point doesn't exist in map\n";
-        return std::vector<CCoordinate>(0);
+		m_startIndex = FindNearestCoordinate(_source);
+		if (-1 == m_startIndex){
+			std::cout << "The source point doesn't exist in map\n";
+			return std::vector<CCoordinate>(0);
+		}
     }
 
     m_endIndex = GetIndex(_destination);
     if (-1 == m_endIndex){
-        std::cout << "The destination point doesn't exist in map\n";
-        return std::vector<CCoordinate>(0);
+		m_endIndex = FindNearestCoordinate(_destination);
+		if (-1 == m_endIndex){
+			std::cout << "The destination point doesn't exist in map\n";
+			return std::vector<CCoordinate>(0);
+		}
     }
 
     //The djacent coordinates to the current coordinate have the value on distances matrix
@@ -245,9 +279,15 @@ std::vector<CCoordinate> CDijkstra::FindShortestPath(
     shortestPath.clear();
     shortestPath.push_back(m_coordinates[m_endIndex]);
     for (;m_endIndex != m_startIndex;){
-        _pathDistance += m_distances[m_preCoordinateIndexes[m_endIndex]][m_endIndex];
-        shortestPath.push_back(m_coordinates[m_preCoordinateIndexes[m_endIndex]]);
-        m_endIndex = m_preCoordinateIndexes[m_endIndex];
+		if (INFINITE_DISTANCE != m_preCoordinateIndexes[m_endIndex]){
+			_pathDistance += m_distances[m_preCoordinateIndexes[m_endIndex]][m_endIndex];
+			shortestPath.push_back(m_coordinates[m_preCoordinateIndexes[m_endIndex]]);
+			m_endIndex = m_preCoordinateIndexes[m_endIndex];
+		}else{	//The path is disconnect
+			shortestPath.clear();
+			_pathDistance = 0;
+			break;
+		}
 
         //Check is the path connected or not
         pathCounter++;
@@ -260,6 +300,8 @@ std::vector<CCoordinate> CDijkstra::FindShortestPath(
     }
     std::reverse(shortestPath.begin(), shortestPath.end());
     _pathDistance = std::sqrt(_pathDistance);
+
+	FreeMemory();
 
     return shortestPath;
 }
