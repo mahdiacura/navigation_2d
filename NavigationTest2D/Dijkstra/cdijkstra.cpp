@@ -15,6 +15,56 @@ CDijkstra::~CDijkstra(){
 
 void CDijkstra::FreeMemory(){
     m_ways.clear();
+	m_coordinates.clear();
+	m_distances.clear();
+	m_coordinatesCount = 0;
+}
+
+//Imports all data from shape file
+void CDijkstra::LoadShapeFile(std::string _shapeFilePath){
+	FreeMemory();
+
+	//Import the dbf file
+	std::string dataBaseFilePath =_shapeFilePath.substr(0, _shapeFilePath.length() - 4) + ".dbf";
+
+	int32_t nShapeType			= 0;
+	int32_t entitiesCount		= 0;
+	int32_t rowIndex			= 0;
+	SHPObject * shape			= nullptr;
+	SHPHandle shapeFileHandle	= nullptr;
+	DBFHandle shapeDBFileHandle	= nullptr;
+
+	shapeFileHandle		= SHPOpen(_shapeFilePath.c_str(),	"rb" );
+	shapeDBFileHandle	= DBFOpen(dataBaseFilePath.c_str(),	"rb");
+	if( shapeFileHandle == NULL){
+		printf( "Unable to import .dbf file\n");
+		return;
+	}
+
+	if(shapeDBFileHandle  == NULL ){
+		printf( "Unable to import .shp file\n");
+		return;
+	}
+
+	//Extract the data
+	SHPGetInfo(shapeFileHandle, &entitiesCount  , &nShapeType, NULL, NULL );
+	for(rowIndex = 0; rowIndex < entitiesCount; rowIndex++){
+		shape = SHPReadObject(shapeFileHandle, rowIndex);
+		if (!(SHPT_ARC == shape->nSHPType && 1 == shape->nParts))continue;
+
+		bool isOneWay = (1 == DBFReadDoubleAttribute(shapeDBFileHandle, rowIndex, 1)) ? true : false;
+
+		CCoordinate startCoordinate	(shape->dfXMin, shape->dfYMin, shape->dfZMin);
+		CCoordinate endCoordinate	(shape->dfXMax, shape->dfYMax, shape->dfZMax);
+		AddWay(CWay(startCoordinate, endCoordinate, isOneWay));
+
+		int x =0;
+	}
+
+
+	//Free memory of shape files
+	SHPClose(shapeFileHandle);
+	DBFClose(shapeDBFileHandle);
 }
 
 void CDijkstra::AddCoordinate(CCoordinate _coordinate){
@@ -101,13 +151,15 @@ bool CDijkstra::IsConnected(int32_t _startIndex, int32_t _endIndex){
 }
 
 std::vector<CCoordinate> CDijkstra::FindShortestPath(
-    CCoordinate _source, CCoordinate _destination, double & _pathDistance){
+	CCoordinate _source, CCoordinate _destination, double & _pathDistance, int32_t _coordinatesCount){
     std::vector<CCoordinate> shortestPath;
     double minDistance          = 0;
     int32_t index               = 0;
     int32_t minDistanceIndex    = 0;
     int32_t currentIndex        = 0;
     std::vector<int32_t> unvisitedCoordinates;
+
+	GenerateDistancesMatrix(_coordinatesCount);
 
     //Initialize the unvisited vector to index
     for (index = 0; index < m_coordinatesCount; index++)

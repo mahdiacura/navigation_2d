@@ -140,17 +140,11 @@ void OpenGLWindow::initialize()
 //    glEnable(GL_CULL_FACE);//Disable back face culling
 
     //Navigate
-    CCoordinate a(0, 0, 0), b(5, 0, 1), c(7, 0, 0), d(3, 0, 2), e(4, 0, 5), f(9, 0, 5);
-    m_dijkstra.AddWay(CWay(a, b, true));
-    m_dijkstra.AddWay(CWay(a, d, false));
-    m_dijkstra.AddWay(CWay(b, c, true));
-    m_dijkstra.AddWay(CWay(d, e, false));
-    m_dijkstra.AddWay(CWay(e, c, true));
-    m_dijkstra.AddWay(CWay(d, f, false));
-    m_dijkstra.AddWay(CWay(f, c, true));
-    m_dijkstra.AddWay(CWay(e, b, true));
-    m_dijkstra.GenerateDistancesMatrix(6);
-    m_shortestPath = m_dijkstra.FindShortestPath(d, c, m_pathDistance);
+//    m_dijkstra.AddWay(CWay(e, b, true));
+//	m_shortestPath = m_dijkstra.FindShortestPath(d, c, m_pathDistance, 6);
+	m_dijkstra.LoadShapeFile("E:/Workstation/C++/NavigationTest2D/Data/test/test.shp");
+	m_shortestPath = m_dijkstra.FindShortestPath(NULL, NULL, m_pathDistance, 6);
+
     m_waysCount = m_dijkstra.m_ways.size();
 
     {

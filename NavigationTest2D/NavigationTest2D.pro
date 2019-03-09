@@ -27,24 +27,27 @@ SOURCES += \
         main.cpp \
 	mainwindow.cpp \
 	Dijkstra/cdijkstra.cpp \
-	ShapeFile/Shapefile.c \
-	ShapeFile/cshapefile.cpp \
 	Coordinate/ccoordinate.cpp \
 	Coordinate/cway.cpp \
-    Coordinate/cbox.cpp \
-    OpenGL/openglwindow.cpp
+	Coordinate/cbox.cpp \
+	OpenGL/openglwindow.cpp \
+    ShapeLib/dbfopen.c \
+    ShapeLib/safileio.c \
+    ShapeLib/sbnsearch.c \
+    ShapeLib/shpgeo.c \
+    ShapeLib/shpopen.c \
+    ShapeLib/shptree.c
 
 HEADERS += \
 	mainwindow.h \
 	Dijkstra/cdijkstra.h \
 	Dijkstra/csystemversion.h \
-	ShapeFile/Shapefile.h \
-	ShapeFile/Shapefile-internal.h \
-	ShapeFile/cshapefile.h \
 	Coordinate/ccoordinate.h \
 	Coordinate/cway.h \
-    Coordinate/cbox.h \
-    OpenGL/openglwindow.h
+	Coordinate/cbox.h \
+	OpenGL/openglwindow.h \
+    ShapeLib/shapefil.h \
+    ShapeLib/shpgeo.h
 
 
 
