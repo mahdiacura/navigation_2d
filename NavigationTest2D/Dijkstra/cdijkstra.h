@@ -4,6 +4,7 @@
 #include <vector>
 #include <algorithm>
 #include <iostream>
+#include <memory>
 
 #include "../Coordinate/ccoordinate.h"
 #include "../Coordinate/cbox.h"
@@ -17,11 +18,11 @@ class CDijkstra{
 public:
 	void LoadShapeFile(std::string _shapeFilePath);
     void AddWay(CWay _coordinate);
-    std::vector<CCoordinate> FindShortestPath(
+	std::vector<CCoordinate> FindShortestPath(
 		CCoordinate _source,
 		CCoordinate _destination,
 		double & _pathDistance);
-	int32_t FindNearestCoordinate(CCoordinate _coordinate);
+	int32_t FindNearestCoordinate(CCoordinate & _coordinate);
 
     CDijkstra();
     ~CDijkstra();
@@ -35,9 +36,6 @@ public:
     int32_t m_startIndex;
     int32_t m_endIndex;
     SBox m_area;
-
-	//ShapeLib
-
 
     bool IsConnected(int32_t _startIndex, int32_t _endIndex);
     int32_t GetIndex(CCoordinate & _coordinate);

@@ -1,25 +1,5 @@
 #include "cdijkstra.h"
 
-void CDijkstra::AddWay(CWay _way){
-    m_ways.push_back(_way);
-}
-
-CDijkstra::CDijkstra(){
-    m_coordinatesCount  = 0;
-//    m_row               = 0;
-}
-
-CDijkstra::~CDijkstra(){
-    FreeMemory();
-}
-
-void CDijkstra::FreeMemory(){
-    m_ways.clear();
-	m_coordinates.clear();
-	m_distances.clear();
-	m_coordinatesCount = 0;
-}
-
 //Imports all data from shape file
 void CDijkstra::LoadShapeFile(std::string _shapeFilePath){
 	FreeMemory();
@@ -53,16 +33,37 @@ void CDijkstra::LoadShapeFile(std::string _shapeFilePath){
 	for(rowIndex = 0; rowIndex < entitiesCount; rowIndex++){
 		shape = SHPReadObject(shapeFileHandle, rowIndex);
 		if (!(SHPT_ARC == shape->nSHPType && 1 == shape->nParts))continue;
-		if (2 < shape->nVertices)continue;	//Ignore points
+		if (2 > shape->nVertices)continue;	//Ignore points
 
 		bool isOneWay = (1 == DBFReadDoubleAttribute(shapeDBFileHandle, rowIndex, 1)) ? true : false;
 
 		//Get the all vertices of this path
 		m_coordinatesCount += shape->nVertices;//! repetitive coordinates will be factored
+
+//		for (vertexIndex = 0; vertexIndex < shape->nVertices; vertexIndex++){
+//			double x = shape->padfX[vertexIndex];
+//			double y = shape->padfY[vertexIndex];
+//			double z = shape->padfZ[vertexIndex];
+////			x = std::round(x * 1000000) /(float) 1000000;
+////			y = std::round(y * 1000000) /(float) 1000000;
+////			z = std::round(z * 1000000) /(float) 1000000;
+////			if (x == 51.366227 && y == 35.767429){
+//			if (x > 51.366161 && x < 51.366271 && y > 35.767375 && y < 35.767460){
+//				int32_t c = 0;
+//				x = c + 4 * y;
+//			}
+//		}
+
 		for (vertexIndex = 0; vertexIndex < shape->nVertices - 1; vertexIndex++){
-			CCoordinate startCoordinate	(shape->padfX[vertexIndex], shape->padfY[vertexIndex], shape->padfZ[vertexIndex]);
-			CCoordinate endCoordinate	(shape->padfX[vertexIndex + 1], shape->padfY[vertexIndex + 1], shape->padfZ[vertexIndex + 1]);
+			CCoordinate startCoordinate	(shape->padfX[vertexIndex],
+										 shape->padfY[vertexIndex],
+										 shape->padfZ[vertexIndex]);
+			CCoordinate endCoordinate	(shape->padfX[vertexIndex + 1],
+										 shape->padfY[vertexIndex + 1],
+										 shape->padfZ[vertexIndex + 1]);
 			AddWay(CWay(startCoordinate, endCoordinate, isOneWay));
+
+			//! search and add non-repetitive coordinates here
 		}
 
 	}
@@ -81,6 +82,26 @@ void CDijkstra::LoadShapeFile(std::string _shapeFilePath){
 	//Free memory of shape files
 	SHPClose(shapeFileHandle);
 	DBFClose(shapeDBFileHandle);
+}
+
+void CDijkstra::AddWay(CWay _way){
+	m_ways.push_back(_way);
+}
+
+CDijkstra::CDijkstra(){
+	m_coordinatesCount  = 0;
+//    m_row               = 0;
+}
+
+CDijkstra::~CDijkstra(){
+	FreeMemory();
+}
+
+void CDijkstra::FreeMemory(){
+	m_ways.clear();
+	m_coordinates.clear();
+	m_distances.clear();
+	m_coordinatesCount = 0;
 }
 
 void CDijkstra::AddCoordinate(CCoordinate _coordinate){
@@ -113,19 +134,18 @@ void CDijkstra::SetDistance(CWay & _way){
 }
 
 void CDijkstra::GenerateDistancesMatrix(){
-    m_coordinates.clear();
-
-    //Clear the distances matrix
-    m_distances.clear();//! extra
+	//Clear the memory
+	m_coordinates.clear();
+	m_distances.clear();//! extra
 	//! optimise. high memroy. count the coordinates instead of ways and then optimise
 //	m_distances.resize(m_ways.size() * 2, std::vector<double>(m_ways.size() * 2, INFINITE_DISTANCE));
 //	m_preCoordinateIndexes.resize(m_ways.size() * 2, NONE_INDEX);
 	m_distances.resize(m_coordinatesCount, std::vector<double>(m_coordinatesCount, INFINITE_DISTANCE));
 	m_preCoordinateIndexes.resize(m_coordinatesCount, NONE_INDEX);
 
+	//Extract the coordinates
 	m_coordinatesCount = 0;//Reset to count the non-repetitive coordinates, then resize the buffers again
-    //Extract the coordinates
-    for (std::vector<CWay>::iterator ways = m_ways.begin(); ways != m_ways.end(); ways++){
+	for (std::vector<CWay>::iterator ways = m_ways.begin(); ways != m_ways.end(); ways++){
         //Search for the start coordinate
         m_coordinateIterator = std::find(m_coordinates.begin(), m_coordinates.end(), ways->m_startCoordinate);
         if (m_coordinateIterator == m_coordinates.end())
@@ -140,8 +160,8 @@ void CDijkstra::GenerateDistancesMatrix(){
     }
 
 	//Resize the buffer to non-repetitive coordinates
-	m_distances.resize(m_coordinatesCount, std::vector<double>(m_coordinatesCount));
-	m_preCoordinateIndexes.resize(m_coordinatesCount);
+//	m_distances.resize(m_coordinatesCount, std::vector<double>(m_coordinatesCount));
+//	m_preCoordinateIndexes.resize(m_coordinatesCount);
 
 }
 
@@ -152,13 +172,12 @@ int32_t CDijkstra::GetIndex(CCoordinate & _coordinate){
     return (m_coordinateIterator - m_coordinates.begin());
 }
 
-int32_t CDijkstra::FindNearestCoordinate(CCoordinate _coordinate){
+int32_t CDijkstra::FindNearestCoordinate(CCoordinate & _coordinate){
 	int32_t index			= 0;
 	double_t distance		= 0;
 	double_t minDistance	= INFINITE_DISTANCE;
 	int32_t minIndex		= NONE_INDEX;
 
-//	m_coordinatesCount = m_coordinates.size();
 	for (index = 0; index < m_coordinatesCount; index++){
 		distance =
 			std::pow(_coordinate.m_x - m_coordinates[index].m_x, 2) +
@@ -225,8 +244,12 @@ std::vector<CCoordinate> CDijkstra::FindShortestPath(
     m_distances[m_startIndex][m_startIndex] = 0;
 
     currentIndex = m_startIndex;
+	double currentWeight		= INFINITE_DISTANCE;//! care about storing -1 in double. The result ~ -0.99999999996
+	double neighborDistance	= INFINITE_DISTANCE;
+	double neighborWeight		= INFINITE_DISTANCE;
 	//! optimise. O(n2)
-    for (int32_t counter = 0; counter < m_coordinatesCount; counter++){
+//    for (int32_t counter = 0; counter < m_coordinatesCount; counter++){
+	while (unvisitedIndexes.size()){
         //Find the nearest adjacent coordinate to current coordinate
         minDistance         = INFINITE_DISTANCE;
 		minDistanceIndex    = NONE_INDEX;
@@ -242,23 +265,33 @@ std::vector<CCoordinate> CDijkstra::FindShortestPath(
 			}
 
             //Initialize the distance from source to current coordinate
-            if (INFINITE_DISTANCE == m_distances[index][index]){
-                m_distances[index][index]  = m_distances[currentIndex][currentIndex] + m_distances[currentIndex][index];
+			currentWeight		= m_distances[currentIndex][currentIndex];
+			neighborDistance	= m_distances[currentIndex][index];
+			neighborWeight		= m_distances[index][index];
+			if (currentWeight < 0 && neighborDistance > 0){
+				currentWeight = currentWeight + 0;
+				//! continue with next neighbor
+				currentIndex = index;
+				continue;
+			}
+
+			if (INFINITE_DISTANCE == neighborWeight){
+				m_distances[index][index]  = currentWeight + neighborDistance;
                 m_preCoordinateIndexes[index] = currentIndex;
-            }else if (m_distances[index][index] >
-                      m_distances[currentIndex][currentIndex] + m_distances[currentIndex][index] &&
-                      INFINITE_DISTANCE != m_distances[currentIndex][index]){
-                m_distances[index][index]       = m_distances[currentIndex][currentIndex] + m_distances[currentIndex][index];
+			}else if (INFINITE_DISTANCE != neighborDistance &&
+					  neighborWeight > currentWeight + neighborDistance){
+				m_distances[index][index]       = currentWeight + neighborDistance;
                 m_preCoordinateIndexes[index]   = currentIndex;
             }
 
             if ((index != m_startIndex) &&
-                (minDistance > m_distances[currentIndex][index] || INFINITE_DISTANCE == minDistance)){
-                minDistance         = m_distances[currentIndex][index];
+				(minDistance > neighborDistance || INFINITE_DISTANCE == minDistance)){
+				minDistance         = neighborDistance;
                 minDistanceIndex    = index;
             }
         }
 
+		//! extra?
         //Update the distance and continue
         if (INFINITE_DISTANCE != minDistanceIndex){
             //Check is there the minDistanceIndex in the unvisisted list or not
@@ -278,6 +311,7 @@ std::vector<CCoordinate> CDijkstra::FindShortestPath(
                 break;
         }
 
+		//! extra?
         //Remove current coordinate from unvisited coordinates
         std::vector<int32_t>::iterator currentCoordinate =
 			std::find(unvisitedIndexes.begin(), unvisitedIndexes.end(), currentIndex);

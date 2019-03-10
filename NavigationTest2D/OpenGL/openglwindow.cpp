@@ -140,15 +140,29 @@ void OpenGLWindow::initialize()
 //    glEnable(GL_CULL_FACE);//Disable back face culling
 
 	//Navigate
-	m_dijkstra.LoadShapeFile("E:/Workstation/C++/NavigationTest2D/Data/test/test.shp");
+	int32_t index = 0;
+	for (index = 0; index < 1; index++){
+		m_dijkstra.LoadShapeFile("E:/Workstation/C++/NavigationTest2D/Data/test/test.shp");
 
-	double pathDistance = 0;
-	CCoordinate sourceCoordinate		(51.363523, 35.766957, 0);
-	CCoordinate destinationCoordinate	(51.364110, 35.767557, 0);
-	m_shortestPath = m_dijkstra.FindShortestPath(
-		sourceCoordinate,
-		destinationCoordinate,
-		pathDistance);
+		double pathDistance = 0;
+//		//Test_01	Connected
+//		CCoordinate sourceCoordinate		(51.364110, 35.767557, 0);
+//		CCoordinate destinationCoordinate	(51.363523, 35.766957, 0);
+//		//Test_02	Connected
+//		CCoordinate sourceCoordinate		(51.364151, 35.767077, 0);
+//		CCoordinate destinationCoordinate	(51.364041, 35.767545, 0);
+//		//Test_03	Disonnected
+//		CCoordinate sourceCoordinate		(51.364240, 35.766614, 0);
+//		CCoordinate destinationCoordinate	(51.363354, 35.767463, 0);
+		//Test_04
+		CCoordinate sourceCoordinate		(51.365402, 35.766843, 0);
+		CCoordinate destinationCoordinate	(51.363354, 35.767463, 0);
+		m_shortestPath = m_dijkstra.FindShortestPath(
+			sourceCoordinate,
+			destinationCoordinate,
+			pathDistance);
+	}
+	index = 0;
 return;
     m_waysCount = m_dijkstra.m_ways.size();
 
