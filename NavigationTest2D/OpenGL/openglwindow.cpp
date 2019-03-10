@@ -150,8 +150,7 @@ void OpenGLWindow::initialize()
 	m_shortestPath = m_dijkstra.FindShortestPath(
 		sourceCoordinate,
 		destinationCoordinate,
-		pathDistance,
-		6);
+		pathDistance);
 
     m_waysCount = m_dijkstra.m_ways.size();
 

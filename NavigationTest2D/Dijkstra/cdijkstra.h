@@ -10,7 +10,8 @@
 #include "../Coordinate/cway.h"
 #include "ShapeLib/shapefil.h"
 
-#define INFINITE_DISTANCE -1
+#define INFINITE_DISTANCE	-1
+#define NONE_INDEX			-1
 
 class CDijkstra{
 public:
@@ -19,8 +20,7 @@ public:
     std::vector<CCoordinate> FindShortestPath(
 		CCoordinate _source,
 		CCoordinate _destination,
-		double & _pathDistance,
-		int32_t _coordinatesCount);
+		double & _pathDistance);
 	int32_t FindNearestCoordinate(CCoordinate _coordinate);
 
     CDijkstra();
@@ -43,7 +43,7 @@ public:
     int32_t GetIndex(CCoordinate & _coordinate);
     void SetDistance(CWay & _way);
     void AddCoordinate(CCoordinate _coordinate);
-    void GenerateDistancesMatrix(int32_t _coordinatesCount);
+	void GenerateDistancesMatrix();
     void FreeMemory();
 };
 
