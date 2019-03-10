@@ -131,7 +131,7 @@ void OpenGLWindow::initialize()
     m_colorAttribute    = m_program->attributeLocation("colAttr");
     m_matrixUniform     = m_program->uniformLocation("matrix");
 
-//    glClearColor(0.32, 0.42, 0.61, 1);
+	glClearColor(1, 1, 1, 1);
 //    glClearDepth(1.0f);         // Set background depth to farthest
 //    glShadeModel(GL_SMOOTH);    // Enable smooth shading
     glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);  // Nice perspective corrections
@@ -139,9 +139,7 @@ void OpenGLWindow::initialize()
 //    glDepthFunc(GL_LEQUAL);    // Set the type of depth-test
 //    glEnable(GL_CULL_FACE);//Disable back face culling
 
-    //Navigate
-//    m_dijkstra.AddWay(CWay(e, b, true));
-//	m_shortestPath = m_dijkstra.FindShortestPath(d, c, m_pathDistance, 6);
+	//Navigate
 	m_dijkstra.LoadShapeFile("E:/Workstation/C++/NavigationTest2D/Data/test/test.shp");
 
 	double pathDistance = 0;
@@ -151,7 +149,7 @@ void OpenGLWindow::initialize()
 		sourceCoordinate,
 		destinationCoordinate,
 		pathDistance);
-
+return;
     m_waysCount = m_dijkstra.m_ways.size();
 
     {
@@ -258,29 +256,29 @@ void OpenGLWindow::render()
 //            glDisableVertexAttribArray(m_positionAttribute);
 //        }
 
-        //Draw Ways
-        {
-            glVertexAttribPointer(m_positionAttribute, 3, GL_DOUBLE, GL_FALSE, 0, m_waysBuffer);
-            glVertexAttribPointer(m_colorAttribute, 3, GL_FLOAT, GL_FALSE, 0, m_pathColors);
-            glEnableVertexAttribArray(m_positionAttribute);
-            glEnableVertexAttribArray(m_colorAttribute);
-            glLineWidth(1);
-            glDrawArrays(GL_LINES, 0, m_waysCount);
-            glDisableVertexAttribArray(m_colorAttribute);
-            glDisableVertexAttribArray(m_positionAttribute);
-        }
+//        //Draw Ways
+//        {
+//            glVertexAttribPointer(m_positionAttribute, 3, GL_DOUBLE, GL_FALSE, 0, m_waysBuffer);
+//            glVertexAttribPointer(m_colorAttribute, 3, GL_FLOAT, GL_FALSE, 0, m_pathColors);
+//            glEnableVertexAttribArray(m_positionAttribute);
+//            glEnableVertexAttribArray(m_colorAttribute);
+//            glLineWidth(1);
+//            glDrawArrays(GL_LINES, 0, m_waysCount);
+//            glDisableVertexAttribArray(m_colorAttribute);
+//            glDisableVertexAttribArray(m_positionAttribute);
+//        }
 
-        //Draw Shortest Path
-        {
-            glVertexAttribPointer(m_positionAttribute, 3, GL_DOUBLE, GL_FALSE, 0, m_shortestPathBuffer);
-            glVertexAttribPointer(m_colorAttribute, 3, GL_FLOAT, GL_FALSE, 0, m_shortestPathColors);
-            glEnableVertexAttribArray(m_positionAttribute);
-            glEnableVertexAttribArray(m_colorAttribute);
-            glLineWidth(4);
-            glDrawArrays(GL_LINES, 0, m_shortestPathCount);
-            glDisableVertexAttribArray(m_colorAttribute);
-            glDisableVertexAttribArray(m_positionAttribute);
-        }
+//        //Draw Shortest Path
+//        {
+//            glVertexAttribPointer(m_positionAttribute, 3, GL_DOUBLE, GL_FALSE, 0, m_shortestPathBuffer);
+//            glVertexAttribPointer(m_colorAttribute, 3, GL_FLOAT, GL_FALSE, 0, m_shortestPathColors);
+//            glEnableVertexAttribArray(m_positionAttribute);
+//            glEnableVertexAttribArray(m_colorAttribute);
+//            glLineWidth(4);
+//            glDrawArrays(GL_LINES, 0, m_shortestPathCount);
+//            glDisableVertexAttribArray(m_colorAttribute);
+//            glDisableVertexAttribArray(m_positionAttribute);
+//        }
 
         m_program->release();
         ++m_frame;

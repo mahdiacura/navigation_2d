@@ -191,13 +191,13 @@ std::vector<CCoordinate> CDijkstra::FindShortestPath(
     int32_t index               = 0;
     int32_t minDistanceIndex    = 0;
     int32_t currentIndex        = 0;
-    std::vector<int32_t> unvisitedCoordinates;
+	std::vector<int32_t> unvisitedIndexes;
 
 	GenerateDistancesMatrix();
 
     //Initialize the unvisited vector to index
     for (index = 0; index < m_coordinatesCount; index++)
-        unvisitedCoordinates.push_back(index);
+		unvisitedIndexes.push_back(index);
 
     //Find the index of coordinates in distances matrix
     m_startIndex = GetIndex(_source);
@@ -221,7 +221,7 @@ std::vector<CCoordinate> CDijkstra::FindShortestPath(
     //The djacent coordinates to the current coordinate have the value on distances matrix
 	//Start Coordinate Initialization
     m_preCoordinateIndexes[m_startIndex] = m_startIndex;
-    unvisitedCoordinates.erase(unvisitedCoordinates.begin() + m_startIndex);
+	unvisitedIndexes.erase(unvisitedIndexes.begin() + m_startIndex);
     m_distances[m_startIndex][m_startIndex] = 0;
 
     currentIndex = m_startIndex;
@@ -233,6 +233,13 @@ std::vector<CCoordinate> CDijkstra::FindShortestPath(
         for (index = 0; index < m_coordinatesCount; index++){
             if (!IsConnected(currentIndex, index) || index == m_startIndex)continue;
 			if (m_preCoordinateIndexes[currentIndex] == index)continue;	//Ignore pre coordinates
+
+			//! check it
+			{//Ignore if it has been visited ago
+				std::vector<int32_t>::iterator result =
+					std::find(unvisitedIndexes.begin(), unvisitedIndexes.end(), index);
+				if (result == unvisitedIndexes.end())continue;
+			}
 
             //Initialize the distance from source to current coordinate
             if (INFINITE_DISTANCE == m_distances[index][index]){
@@ -256,29 +263,29 @@ std::vector<CCoordinate> CDijkstra::FindShortestPath(
         if (INFINITE_DISTANCE != minDistanceIndex){
             //Check is there the minDistanceIndex in the unvisisted list or not
             std::vector<int32_t>::iterator currentCoordinate =
-                std::find(unvisitedCoordinates.begin(), unvisitedCoordinates.end(), minDistanceIndex);
-            if (currentCoordinate == unvisitedCoordinates.end())
-                if (unvisitedCoordinates.size() > 0)
-                    currentIndex = unvisitedCoordinates[0];
+				std::find(unvisitedIndexes.begin(), unvisitedIndexes.end(), minDistanceIndex);
+			if (currentCoordinate == unvisitedIndexes.end())
+				if (unvisitedIndexes.size() > 0)
+					currentIndex = unvisitedIndexes[0];
                 else
                     break;
             else
                 currentIndex = minDistanceIndex;
         }else{
-            if (unvisitedCoordinates.size() > 0)
-                currentIndex = unvisitedCoordinates[0];
+			if (unvisitedIndexes.size() > 0)
+				currentIndex = unvisitedIndexes[0];
             else
                 break;
         }
 
         //Remove current coordinate from unvisited coordinates
         std::vector<int32_t>::iterator currentCoordinate =
-            std::find(unvisitedCoordinates.begin(), unvisitedCoordinates.end(), currentIndex);
-        if (currentCoordinate != unvisitedCoordinates.end())
-            unvisitedCoordinates.erase(currentCoordinate);
+			std::find(unvisitedIndexes.begin(), unvisitedIndexes.end(), currentIndex);
+		if (currentCoordinate != unvisitedIndexes.end())
+			unvisitedIndexes.erase(currentCoordinate);
         else
-            if (unvisitedCoordinates.size() > 0)
-                currentIndex = unvisitedCoordinates[0];
+			if (unvisitedIndexes.size() > 0)
+				currentIndex = unvisitedIndexes[0];
             else
                 break;
     }
