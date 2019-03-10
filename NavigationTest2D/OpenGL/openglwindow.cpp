@@ -59,14 +59,14 @@
 //Axis
 GLdouble axisesVertices[] = {
     //X
-    -100, 0, 0,
-    100, 0, 0,
+	-1000, 0, 0,
+	1000, 0, 0,
     //Y
-    0, -100, 0,
-    0, 100, 0,
+	0, -1000, 0,
+	0, 1000, 0,
     //Z
-    0, 0, -100,
-    0, 0, 100
+	0, 0, -1000,
+	0, 0, 1000
 };
 GLfloat axisesColors[] = {
     //X
@@ -81,11 +81,13 @@ GLfloat axisesColors[] = {
 };
 //Area of Coordinates
 GLfloat areaColors[] = {
-    1, 1, 1,
-    1, 1, 1,
-    1, 1, 1,
-    1, 1, 1
+	0, 0, 0,
+	0, 0, 0,
+	0, 0, 0,
+	0, 0, 0
 };
+
+
 
 OpenGLWindow::OpenGLWindow(QWindow *parent)
     : QWindow(parent)
@@ -154,7 +156,7 @@ void OpenGLWindow::initialize()
 //		//Test_03	Disonnected
 //		CCoordinate sourceCoordinate		(51.364240, 35.766614, 0);
 //		CCoordinate destinationCoordinate	(51.363354, 35.767463, 0);
-		//Test_04
+		//Test_04	Connected
 		CCoordinate sourceCoordinate		(51.365402, 35.766843, 0);
 		CCoordinate destinationCoordinate	(51.363354, 35.767463, 0);
 		m_shortestPath = m_dijkstra.FindShortestPath(
@@ -163,7 +165,7 @@ void OpenGLWindow::initialize()
 			pathDistance);
 	}
 	index = 0;
-return;
+
     m_waysCount = m_dijkstra.m_ways.size();
 
     {
@@ -174,12 +176,12 @@ return;
         for (int32_t index = 0; index <= (m_shortestPathCount * 3) - 3 * 2; index += 6){
             //Start Coordinate
             m_shortestPathBuffer[index + 0] = m_shortestPath[coordinateCounter].m_x;
-            m_shortestPathBuffer[index + 1] = m_shortestPath[coordinateCounter].m_y;
-            m_shortestPathBuffer[index + 2] = m_shortestPath[coordinateCounter].m_z;
+			m_shortestPathBuffer[index + 1] = m_shortestPath[coordinateCounter].m_z;
+			m_shortestPathBuffer[index + 2] = m_shortestPath[coordinateCounter].m_y;
             //End Coordinate
             m_shortestPathBuffer[index + 3] = m_shortestPath[coordinateCounter + 1].m_x;
-            m_shortestPathBuffer[index + 4] = m_shortestPath[coordinateCounter + 1].m_y;
-            m_shortestPathBuffer[index + 5] = m_shortestPath[coordinateCounter + 1].m_z;
+			m_shortestPathBuffer[index + 4] = m_shortestPath[coordinateCounter + 1].m_z;
+			m_shortestPathBuffer[index + 5] = m_shortestPath[coordinateCounter + 1].m_y;
             coordinateCounter++;
         }
 
@@ -189,12 +191,12 @@ return;
         for (int32_t index = 0; index < (m_waysCount * 3) - 3 * 2; index += 6){
             //Start Coordinate
             m_waysBuffer[index + 0] = m_dijkstra.m_ways[waysCounter].m_startCoordinate.m_x;
-            m_waysBuffer[index + 1] = m_dijkstra.m_ways[waysCounter].m_startCoordinate.m_y;
-            m_waysBuffer[index + 2] = m_dijkstra.m_ways[waysCounter].m_startCoordinate.m_z;
+			m_waysBuffer[index + 1] = m_dijkstra.m_ways[waysCounter].m_startCoordinate.m_z;
+			m_waysBuffer[index + 2] = m_dijkstra.m_ways[waysCounter].m_startCoordinate.m_y;
             //End Coordinate
-            m_waysBuffer[index + 3] = m_dijkstra.m_ways[waysCounter + 1].m_startCoordinate.m_x;
-            m_waysBuffer[index + 4] = m_dijkstra.m_ways[waysCounter + 1].m_startCoordinate.m_y;
-            m_waysBuffer[index + 5] = m_dijkstra.m_ways[waysCounter + 1].m_startCoordinate.m_z;
+			m_waysBuffer[index + 3] = m_dijkstra.m_ways[waysCounter].m_endCoordinate.m_x;
+			m_waysBuffer[index + 4] = m_dijkstra.m_ways[waysCounter].m_endCoordinate.m_z;
+			m_waysBuffer[index + 5] = m_dijkstra.m_ways[waysCounter].m_endCoordinate.m_y;
             waysCounter++;
         }
     }
@@ -204,15 +206,15 @@ return;
         //    m_coordinatesBuffer = new GLdouble[
         m_shortestPathColors = new GLfloat[m_waysCount * 3];
         for (int32_t index = 0; index < (m_waysCount * 3) - 3; index += 3){
-            //Yellow Color
-            m_shortestPathColors[index + 0] = 1;
-            m_shortestPathColors[index + 1] = 1;
+			//
+			m_shortestPathColors[index + 0] = 1;
+			m_shortestPathColors[index + 1] = 0;
             m_shortestPathColors[index + 2] = 0;
         }
 
         m_pathColors = new GLfloat[m_waysCount * 3];
         for (int32_t index = 0; index < (m_waysCount * 3) - 3; index += 3){
-            //blue Color
+			//white Color
             m_pathColors[index + 0] = 1;
             m_pathColors[index + 1] = 1;
             m_pathColors[index + 2] = 1;
@@ -231,70 +233,73 @@ void OpenGLWindow::render()
         m_program->bind();
 
         QMatrix4x4 matrix;
-        matrix.perspective(60.0f, 4.0f/3.0f, 0.1, 100);
-        matrix.translate(-3, -3, -18);
-        matrix.rotate(15, 1, 0, 0);
-        m_program->setUniformValue(m_matrixUniform, matrix);
+		matrix.perspective(60.0f, 4.0f/3.0f, 0, 1000);
+//		matrix.translate(0 - m_dijkstra.m_centerOfMap.m_x,
+//						 -0.01 - m_dijkstra.m_centerOfMap.m_z,
+//						 -0.04 - m_dijkstra.m_centerOfMap.m_y);
+//		matrix.rotate(0, 0, 0, 0);
+		matrix.translate(0 - m_dijkstra.m_centerOfMap.m_x,
+						 -0.01 - m_dijkstra.m_centerOfMap.m_z,
+						 -0.04 - m_dijkstra.m_centerOfMap.m_y);
+		matrix.rotate(0, 1, 0, 0);
+		m_program->setUniformValue(m_matrixUniform, matrix);
 
-        //Draw Axises
-        {
-            glVertexAttribPointer(m_positionAttribute, 3, GL_DOUBLE, GL_FALSE, 0, axisesVertices);
-            glVertexAttribPointer(m_colorAttribute, 3, GL_FLOAT, GL_FALSE, 0, axisesColors);
-            glEnableVertexAttribArray(m_positionAttribute);
-            glEnableVertexAttribArray(m_colorAttribute);
-            glLineWidth(1.2);
-            glDrawArrays(GL_LINES, 0, 6);
-            glDisableVertexAttribArray(m_colorAttribute);
-            glDisableVertexAttribArray(m_positionAttribute);
-        }
+		//Draw Axises
+		{
+			glVertexAttribPointer(m_positionAttribute, 3, GL_DOUBLE, GL_FALSE, 0, axisesVertices);
+			glVertexAttribPointer(m_colorAttribute, 3, GL_FLOAT, GL_FALSE, 0, axisesColors);
+			glEnableVertexAttribArray(m_positionAttribute);
+			glEnableVertexAttribArray(m_colorAttribute);
+			glLineWidth(2);
+			glDrawArrays(GL_LINES, 0, 6);
+			glDisableVertexAttribArray(m_colorAttribute);
+			glDisableVertexAttribArray(m_positionAttribute);
+		}
 
-//        //Draw area of coordinates
-//        {
-//            GLdouble area_vertices[] = {
-//                //Top-Left
-//                m_dijkstra.m_area.m_left, m_dijkstra.m_area.m_bottom, m_dijkstra.m_area.m_top,
-//                //Bottom-Left
-//                m_dijkstra.m_area.m_left, m_dijkstra.m_area.m_bottom, m_dijkstra.m_area.m_bottom,
-//                //Bottom-Right
-//                m_dijkstra.m_area.m_right, m_dijkstra.m_area.m_bottom, m_dijkstra.m_area.m_bottom,
-//                //Top-Right
-//                m_dijkstra.m_area.m_right, m_dijkstra.m_area.m_bottom, m_dijkstra.m_area.m_top
-//            };
-//            glVertexAttribPointer(m_positionAttribute, 3, GL_DOUBLE, GL_FALSE, 0, area_vertices);
-//            glVertexAttribPointer(m_colorAttribute, 3, GL_FLOAT, GL_FALSE, 0, areaColors);
-//            glEnableVertexAttribArray(m_positionAttribute);
-//            glEnableVertexAttribArray(m_colorAttribute);
-//            glLineWidth(1);
-//            glDrawArrays(GL_QUADS, 0, 4);
-//            glDisableVertexAttribArray(m_colorAttribute);
-//            glDisableVertexAttribArray(m_positionAttribute);
-//        }
+		//Draw area of coordinates
+		{
+			GLdouble area_vertices[] = {
+				m_dijkstra.m_area.m_left, m_dijkstra.m_area.m_back, m_dijkstra.m_area.m_bottom,
+				m_dijkstra.m_area.m_right, m_dijkstra.m_area.m_back, m_dijkstra.m_area.m_bottom,
+				m_dijkstra.m_area.m_right, m_dijkstra.m_area.m_back, m_dijkstra.m_area.m_top,
+				m_dijkstra.m_area.m_left, m_dijkstra.m_area.m_back, m_dijkstra.m_area.m_top
+			};
+			glVertexAttribPointer(m_positionAttribute, 3, GL_DOUBLE, GL_FALSE, 0, area_vertices);
+			glVertexAttribPointer(m_colorAttribute, 3, GL_FLOAT, GL_FALSE, 0, areaColors);
+			glEnableVertexAttribArray(m_positionAttribute);
+			glEnableVertexAttribArray(m_colorAttribute);
+			glLineWidth(1);
+			glDrawArrays(GL_QUADS, 0, 4);
+			glDisableVertexAttribArray(m_colorAttribute);
+			glDisableVertexAttribArray(m_positionAttribute);
+		}
 
-//        //Draw Ways
-//        {
-//            glVertexAttribPointer(m_positionAttribute, 3, GL_DOUBLE, GL_FALSE, 0, m_waysBuffer);
-//            glVertexAttribPointer(m_colorAttribute, 3, GL_FLOAT, GL_FALSE, 0, m_pathColors);
-//            glEnableVertexAttribArray(m_positionAttribute);
-//            glEnableVertexAttribArray(m_colorAttribute);
-//            glLineWidth(1);
-//            glDrawArrays(GL_LINES, 0, m_waysCount);
-//            glDisableVertexAttribArray(m_colorAttribute);
-//            glDisableVertexAttribArray(m_positionAttribute);
-//        }
+		//Draw Ways
+		{
+			glVertexAttribPointer(m_positionAttribute, 3, GL_DOUBLE, GL_FALSE, 0, m_waysBuffer);
+			glVertexAttribPointer(m_colorAttribute, 3, GL_FLOAT, GL_FALSE, 0, m_pathColors);
+			glEnableVertexAttribArray(m_positionAttribute);
+			glEnableVertexAttribArray(m_colorAttribute);
+			glLineWidth(1);
+			glDrawArrays(GL_LINES, 0, m_waysCount);
+			glDisableVertexAttribArray(m_colorAttribute);
+			glDisableVertexAttribArray(m_positionAttribute);
+		}
 
-//        //Draw Shortest Path
-//        {
-//            glVertexAttribPointer(m_positionAttribute, 3, GL_DOUBLE, GL_FALSE, 0, m_shortestPathBuffer);
-//            glVertexAttribPointer(m_colorAttribute, 3, GL_FLOAT, GL_FALSE, 0, m_shortestPathColors);
-//            glEnableVertexAttribArray(m_positionAttribute);
-//            glEnableVertexAttribArray(m_colorAttribute);
-//            glLineWidth(4);
-//            glDrawArrays(GL_LINES, 0, m_shortestPathCount);
-//            glDisableVertexAttribArray(m_colorAttribute);
-//            glDisableVertexAttribArray(m_positionAttribute);
-//        }
+		//Draw Shortest Path
+		{
+			glVertexAttribPointer(m_positionAttribute, 3, GL_DOUBLE, GL_FALSE, 0, m_shortestPathBuffer);
+			glVertexAttribPointer(m_colorAttribute, 3, GL_FLOAT, GL_FALSE, 0, m_shortestPathColors);
+			glEnableVertexAttribArray(m_positionAttribute);
+			glEnableVertexAttribArray(m_colorAttribute);
+			glLineWidth(4);
+			glDrawArrays(GL_LINES, 0, m_shortestPathCount);
+			glDisableVertexAttribArray(m_colorAttribute);
+			glDisableVertexAttribArray(m_positionAttribute);
+		}
 
-        m_program->release();
+
+		m_program->release();
         ++m_frame;
 }
 
@@ -348,8 +353,8 @@ void OpenGLWindow::renderNow()
 
     m_context->swapBuffers(this);
 
-    if (m_animating)
-        renderLater();
+//    if (m_animating)
+//        renderLater();
 }
 
 void OpenGLWindow::setAnimating(bool animating)

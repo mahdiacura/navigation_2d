@@ -36,6 +36,7 @@ public:
     int32_t m_startIndex;
     int32_t m_endIndex;
     SBox m_area;
+	CCoordinate m_centerOfMap;
 
     bool IsConnected(int32_t _startIndex, int32_t _endIndex);
     int32_t GetIndex(CCoordinate & _coordinate);
