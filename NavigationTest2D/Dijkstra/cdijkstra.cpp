@@ -187,7 +187,7 @@ bool CDijkstra::IsConnected(int32_t _startIndex, int32_t _endIndex){
 std::vector<CCoordinate> CDijkstra::FindShortestPath(
 	CCoordinate _source, CCoordinate _destination, double & _pathDistance){
     std::vector<CCoordinate> shortestPath;
-	double_t minDistance          = 0;
+	double minDistance          = 0;
     int32_t index               = 0;
     int32_t minDistanceIndex    = 0;
     int32_t currentIndex        = 0;
@@ -219,9 +219,11 @@ std::vector<CCoordinate> CDijkstra::FindShortestPath(
     }
 
     //The djacent coordinates to the current coordinate have the value on distances matrix
+	//Start Coordinate Initialization
     m_preCoordinateIndexes[m_startIndex] = m_startIndex;
     unvisitedCoordinates.erase(unvisitedCoordinates.begin() + m_startIndex);
     m_distances[m_startIndex][m_startIndex] = 0;
+
     currentIndex = m_startIndex;
 	//! optimise. O(n2)
     for (int32_t counter = 0; counter < m_coordinatesCount; counter++){
@@ -230,6 +232,7 @@ std::vector<CCoordinate> CDijkstra::FindShortestPath(
 		minDistanceIndex    = NONE_INDEX;
         for (index = 0; index < m_coordinatesCount; index++){
             if (!IsConnected(currentIndex, index) || index == m_startIndex)continue;
+			if (m_preCoordinateIndexes[currentIndex] == index)continue;	//Ignore pre coordinates
 
             //Initialize the distance from source to current coordinate
             if (INFINITE_DISTANCE == m_distances[index][index]){
