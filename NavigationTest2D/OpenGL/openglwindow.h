@@ -130,6 +130,8 @@ private:
     QOpenGLContext *m_context;
     QOpenGLPaintDevice *m_device;
 
+	bool m_foundPath = false;
+
 	//Mouse
 	int32_t m_lastX = 0;
 	int32_t m_lastY = 0;

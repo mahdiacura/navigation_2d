@@ -272,6 +272,11 @@ std::vector<CCoordinate> CDijkstra::FindShortestPath(
 	double neighborWeight	= INFINITE_DISTANCE;
 	//! optimise. O(n2)
 	while (unvisitedIndexes.size()){
+		if (unvisitedIndexes.size() < 10){
+			int x = 0;
+			x = 54 + x;
+		}
+
         //Find the nearest adjacent coordinate to current coordinate
         minDistance         = INFINITE_DISTANCE;
 		minDistanceIndex    = NONE_INDEX;
