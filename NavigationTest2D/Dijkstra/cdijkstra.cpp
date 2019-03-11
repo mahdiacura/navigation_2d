@@ -1,5 +1,15 @@
 #include "cdijkstra.h"
 
+// This function converts decimal degrees to radians
+double_t deg2rad(double_t _degree) {
+	return (_degree * pi / 180);
+};
+
+//  This function converts radians to decimal degrees
+double_t rad2deg(double_t _radian) {
+	return (_radian * 180 / pi);
+};
+
 //Imports all data from shape file
 void CDijkstra::LoadShapeFile(std::string _shapeFilePath){
 	FreeMemory();
@@ -161,6 +171,24 @@ int32_t CDijkstra::GetIndex(CCoordinate & _coordinate){
     return (m_coordinateIterator - m_coordinates.begin());
 }
 
+//Reference : https://en.wikipedia.org/wiki/Haversine_formula
+//Returns the distance between two points on level of earth in KM
+double_t CDijkstra::GetDistanceOnEarth(CCoordinate & _source, CCoordinate & _destination){
+	double_t sourceLatitude			= 0, sourceLongitude = 0;
+	double_t destinationLatitude	= 0, destinationLongitude = 0;
+	double_t u = 0, v = 0;
+
+	sourceLatitude = deg2rad(_source.m_y);
+	sourceLongitude = deg2rad(_source.m_x);
+
+	destinationLatitude = deg2rad(_destination.m_y);
+	destinationLongitude = deg2rad(_destination.m_x);
+	u = sin((destinationLatitude - sourceLatitude)/2);
+	v = sin((destinationLongitude - sourceLongitude)/2);
+
+	return (2.0 * EARTH_RADIUS_IN_KM * std::asin(std::sqrt(u * u + std::cos(sourceLatitude) * std::cos(destinationLatitude) * v * v)));
+}
+
 int32_t CDijkstra::FindNearestCoordinate(CCoordinate & _coordinate){
 	int32_t index			= 0;
 	double_t distance		= 0;
@@ -233,11 +261,10 @@ std::vector<CCoordinate> CDijkstra::FindShortestPath(
     m_distances[m_startIndex][m_startIndex] = 0;
 
     currentIndex = m_startIndex;
-	double currentWeight		= INFINITE_DISTANCE;//! care about storing -1 in double. The result ~ -0.99999999996
+	double currentWeight	= INFINITE_DISTANCE;//! care about storing -1 in double. The result ~ -0.99999999996
 	double neighborDistance	= INFINITE_DISTANCE;
-	double neighborWeight		= INFINITE_DISTANCE;
+	double neighborWeight	= INFINITE_DISTANCE;
 	//! optimise. O(n2)
-//    for (int32_t counter = 0; counter < m_coordinatesCount; counter++){
 	while (unvisitedIndexes.size()){
         //Find the nearest adjacent coordinate to current coordinate
         minDistance         = INFINITE_DISTANCE;
@@ -320,7 +347,9 @@ std::vector<CCoordinate> CDijkstra::FindShortestPath(
     shortestPath.push_back(m_coordinates[m_endIndex]);
     for (;m_endIndex != m_startIndex;){
 		if (INFINITE_DISTANCE != m_preCoordinateIndexes[m_endIndex]){
-			_pathDistance += m_distances[m_preCoordinateIndexes[m_endIndex]][m_endIndex];
+			_pathDistance += GetDistanceOnEarth(
+				m_coordinates[m_endIndex],
+				m_coordinates[m_preCoordinateIndexes[m_endIndex]]);
 			shortestPath.push_back(m_coordinates[m_preCoordinateIndexes[m_endIndex]]);
 			m_endIndex = m_preCoordinateIndexes[m_endIndex];
 		}else{	//The path is disconnect
@@ -339,8 +368,6 @@ std::vector<CCoordinate> CDijkstra::FindShortestPath(
 
     }
     std::reverse(shortestPath.begin(), shortestPath.end());
-    _pathDistance = std::sqrt(_pathDistance);
-
 	//! Free unnecessary memory
 
     return shortestPath;

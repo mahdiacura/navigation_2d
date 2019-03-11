@@ -67,12 +67,15 @@ static const char *fragmentShaderSource =
     "}\n";
 
 #include <QtGui/QWindow>
+#include <QMouseEvent>
 #include <QtGui/QOpenGLFunctions>
 #include <QtGui/QGuiApplication>
 #include <QtGui/QMatrix4x4>
 #include <QtGui/QOpenGLShaderProgram>
 #include <QtGui/QScreen>
 #include <vector>
+#include <cstdint>
+#include <cstdio>
 
 #include "Dijkstra/cdijkstra.h"
 
@@ -86,10 +89,9 @@ class OpenGLWindow : public QWindow, protected QOpenGLFunctions
 public:
     explicit OpenGLWindow(QWindow *parent = 0);
     ~OpenGLWindow();
-
+	void mouseMoveEvent(QMouseEvent *event);
     virtual void render(QPainter *painter);
     virtual void render();
-
     virtual void initialize();
 
     void setAnimating(bool animating);
@@ -126,6 +128,10 @@ private:
     bool m_animating;
     QOpenGLContext *m_context;
     QOpenGLPaintDevice *m_device;
+
+	//Mouse
+	int32_t m_lastX = 0;
+	int32_t m_lastY = 0;
 };
 
 #endif

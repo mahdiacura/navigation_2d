@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <iostream>
 #include <memory>
+#include <cmath>
 
 #include "../Coordinate/ccoordinate.h"
 #include "../Coordinate/cbox.h"
@@ -13,6 +14,12 @@
 
 #define INFINITE_DISTANCE	-1
 #define NONE_INDEX			-1
+
+double_t const pi = std::acos(-1);
+#define EARTH_RADIUS_IN_KM 6371.0
+
+double_t deg2rad(double_t _degree);
+double_t rad2deg(double_t _radian);
 
 class CDijkstra{
 public:
@@ -23,6 +30,7 @@ public:
 		CCoordinate _destination,
 		double & _pathDistance);
 	int32_t FindNearestCoordinate(CCoordinate & _coordinate);
+	double_t GetDistanceOnEarth(CCoordinate & _source, CCoordinate & _destination);
 
     CDijkstra();
     ~CDijkstra();
