@@ -171,6 +171,18 @@ int32_t CDijkstra::GetIndex(CCoordinate & _coordinate){
     return (m_coordinateIterator - m_coordinates.begin());
 }
 
+bool CDijkstra::IsIntersection(int32_t _coordinateIndex){
+	int32_t adjacentCoordinates = 0;
+	for (int32_t index = 0; index < m_coordinatesCount; index++){
+		if (_coordinateIndex == index)continue;
+		if (INFINITE_DISTANCE != m_distances[_coordinateIndex][index])
+			adjacentCoordinates++;
+	}
+
+	if (adjacentCoordinates > 1)return true;
+	return false;
+}
+
 //Reference : https://en.wikipedia.org/wiki/Haversine_formula
 //Returns the distance between two points on level of earth in KM
 double_t CDijkstra::GetDistanceOnEarth(CCoordinate & _source, CCoordinate & _destination){
@@ -341,6 +353,12 @@ std::vector<CCoordinate> CDijkstra::FindShortestPath(
     }
 
     //Make the path
+	std::vector<int8_t> pathDirections;	//-1 : turn left, 0 : go straight, +1 : turn right
+	pathDirections.clear();
+	pathDirections.push_back(DIRECTION_GO_STRAIGHT);	//Add the end direction
+
+	IsIntersection(m_startIndex);
+
     int32_t pathCounter = 1;
     _pathDistance        = 0;
     shortestPath.clear();
@@ -351,9 +369,24 @@ std::vector<CCoordinate> CDijkstra::FindShortestPath(
 				m_coordinates[m_endIndex],
 				m_coordinates[m_preCoordinateIndexes[m_endIndex]]);
 			shortestPath.push_back(m_coordinates[m_preCoordinateIndexes[m_endIndex]]);
+
+			//Calculate direction
+			{
+				if (m_preCoordinateIndex[m_endIndex] == m_startIndex){
+					pathDirections.push_back(DIRECTION_GO_STRAIGHT);
+				}else{
+					if (IsIntersection(m_preCoordinateIndex[m_endIndex])){
+						calculate direction
+					}else{
+						pathDirections.push_back(DIRECTION_GO_STRAIGHT);
+					}
+				}
+			}
+
 			m_endIndex = m_preCoordinateIndexes[m_endIndex];
 		}else{	//The path is disconnect
 			shortestPath.clear();
+			pathDirections.clear();
 			_pathDistance = 0;
 			break;
 		}
@@ -362,12 +395,17 @@ std::vector<CCoordinate> CDijkstra::FindShortestPath(
         pathCounter++;
         if (pathCounter > m_coordinatesCount){      //The path is disconnect
             shortestPath.clear();
+			pathDirections.clear();
             _pathDistance = 0;
             break;
         }
 
     }
-    std::reverse(shortestPath.begin(), shortestPath.end());
+//	if (m_endIndex == m_startIndex)
+//		pathDirections.push_back(DIRECTION_GO_STRAIGHT);	//Add the start direction
+
+	std::reverse(shortestPath.begin(),		shortestPath.end());
+	std::reverse(pathDirections.begin(),	pathDirections.end());
 	//! Free unnecessary memory
 
     return shortestPath;

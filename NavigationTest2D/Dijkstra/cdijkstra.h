@@ -15,6 +15,11 @@
 #define INFINITE_DISTANCE	-1
 #define NONE_INDEX			-1
 
+//Directions
+#define DIRECTION_TURN_LEFT		-1
+#define DIRECTION_GO_STRAIGHT	0
+#define DIRECTION_TURN_RIGHT	+1
+
 double_t const pi = std::acos(-1);
 #define EARTH_RADIUS_IN_KM 6371.0
 
@@ -45,6 +50,7 @@ public:
     int32_t m_endIndex;
     SBox m_area;
 	CCoordinate m_centerOfMap;
+	bool IsIntersection(int32_t _coordinateIndex);
 
     bool IsConnected(int32_t _startIndex, int32_t _endIndex);
     int32_t GetIndex(CCoordinate & _coordinate);

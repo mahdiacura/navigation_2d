@@ -158,6 +158,9 @@ void OpenGLWindow::initialize()
 		//Test_04	Connected
 		CCoordinate sourceCoordinate		(51.365402, 35.766843, 0);
 		CCoordinate destinationCoordinate	(51.363354, 35.767463, 0);
+//		//Test_05	Connected
+//		CCoordinate sourceCoordinate		(51.362079, 35.770310, 0);
+//		CCoordinate destinationCoordinate	(51.363354, 35.767463, 0);
 		m_shortestPath = m_dijkstra.FindShortestPath(
 			sourceCoordinate,
 			destinationCoordinate,
