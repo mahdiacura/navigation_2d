@@ -16,15 +16,9 @@
 #define NONE_INDEX			-1
 
 //Directions
-#define DIRECTION_TURN_LEFT		-1
 #define DIRECTION_GO_STRAIGHT	0
-#define DIRECTION_TURN_RIGHT	+1
-
-double_t const pi = std::acos(-1);
-#define EARTH_RADIUS_IN_KM 6371.0
-
-double_t deg2rad(double_t _degree);
-double_t rad2deg(double_t _radian);
+#define DIRECTION_TURN_RIGHT	1
+#define DIRECTION_TURN_LEFT		2
 
 class CDijkstra{
 public:
@@ -33,7 +27,8 @@ public:
 	std::vector<CCoordinate> FindShortestPath(
 		CCoordinate _source,
 		CCoordinate _destination,
-		double & _pathDistance);
+		double & _pathDistance,
+		std::vector<int8_t> & _pathDirections);
 	int32_t FindNearestCoordinate(CCoordinate & _coordinate);
 	double_t GetDistanceOnEarth(CCoordinate & _source, CCoordinate & _destination);
 

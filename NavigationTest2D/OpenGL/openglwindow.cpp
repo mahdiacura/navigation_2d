@@ -164,7 +164,8 @@ void OpenGLWindow::initialize()
 		m_shortestPath = m_dijkstra.FindShortestPath(
 			sourceCoordinate,
 			destinationCoordinate,
-			pathDistance);
+			pathDistance,
+			m_pathDirections);
 //	}
 
 	std::string textPath = "[Shortest Path]\nDistance : " +
@@ -193,8 +194,16 @@ void OpenGLWindow::initialize()
 					m_shortestPath[coordinateCounter],
 					m_shortestPath[coordinateCounter + 1]);
 
+				std::string direction = "";
+				if (DIRECTION_GO_STRAIGHT == m_pathDirections[coordinateCounter])
+					direction = "Go Straight";
+				else if (DIRECTION_TURN_LEFT == m_pathDirections[coordinateCounter])
+					direction = "Turn Left";
+				else if (DIRECTION_TURN_RIGHT == m_pathDirections[coordinateCounter])
+					direction = "Turn Right";
+
 				textPath += std::to_string(coordinateCounter + 1) + "th way		- Length : " +
-						std::to_string(distance * 1000) + "m		- Direction : " + "Straight" + "\n";
+						std::to_string(distance * 1000) + "m		- Direction : " + direction + "\n";
 			}
 
             coordinateCounter++;

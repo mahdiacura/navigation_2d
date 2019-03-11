@@ -109,6 +109,7 @@ private:
     //Navigation
     CDijkstra m_dijkstra;
     std::vector<CCoordinate> m_shortestPath;
+	std::vector<int8_t> m_pathDirections;
     double m_pathDistance = 0;
 
     GLdouble * m_shortestPathBuffer = nullptr;

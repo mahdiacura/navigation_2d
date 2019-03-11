@@ -1,15 +1,5 @@
 #include "cdijkstra.h"
 
-// This function converts decimal degrees to radians
-double_t deg2rad(double_t _degree) {
-	return (_degree * pi / 180);
-};
-
-//  This function converts radians to decimal degrees
-double_t rad2deg(double_t _radian) {
-	return (_radian * 180 / pi);
-};
-
 //Imports all data from shape file
 void CDijkstra::LoadShapeFile(std::string _shapeFilePath){
 	FreeMemory();
@@ -190,11 +180,11 @@ double_t CDijkstra::GetDistanceOnEarth(CCoordinate & _source, CCoordinate & _des
 	double_t destinationLatitude	= 0, destinationLongitude = 0;
 	double_t u = 0, v = 0;
 
-	sourceLatitude = deg2rad(_source.m_y);
-	sourceLongitude = deg2rad(_source.m_x);
+	sourceLatitude	= DegreeToRadian(_source.m_y);
+	sourceLongitude	= DegreeToRadian(_source.m_x);
 
-	destinationLatitude = deg2rad(_destination.m_y);
-	destinationLongitude = deg2rad(_destination.m_x);
+	destinationLatitude		= DegreeToRadian(_destination.m_y);
+	destinationLongitude	= DegreeToRadian(_destination.m_x);
 	u = sin((destinationLatitude - sourceLatitude)/2);
 	v = sin((destinationLongitude - sourceLongitude)/2);
 
@@ -233,7 +223,11 @@ bool CDijkstra::IsConnected(int32_t _startIndex, int32_t _endIndex){
 }
 
 std::vector<CCoordinate> CDijkstra::FindShortestPath(
-	CCoordinate _source, CCoordinate _destination, double & _pathDistance){
+	CCoordinate _source,
+	CCoordinate _destination,
+	double & _pathDistance,
+	std::vector<int8_t> & _pathDirections)
+{
     std::vector<CCoordinate> shortestPath;
 	double minDistance          = 0;
     int32_t index               = 0;
@@ -352,10 +346,9 @@ std::vector<CCoordinate> CDijkstra::FindShortestPath(
                 break;
     }
 
-    //Make the path
-	std::vector<int8_t> pathDirections;	//-1 : turn left, 0 : go straight, +1 : turn right
-	pathDirections.clear();
-	pathDirections.push_back(DIRECTION_GO_STRAIGHT);	//Add the end direction
+	//Make the path
+	_pathDirections.clear();
+	_pathDirections.push_back(DIRECTION_GO_STRAIGHT);	//Add the end direction
 
 	IsIntersection(m_startIndex);
 
@@ -372,13 +365,27 @@ std::vector<CCoordinate> CDijkstra::FindShortestPath(
 
 			//Calculate direction
 			{
-				if (m_preCoordinateIndex[m_endIndex] == m_startIndex){
-					pathDirections.push_back(DIRECTION_GO_STRAIGHT);
+				if (m_preCoordinateIndexes[m_endIndex] == m_startIndex){
+					_pathDirections.push_back(DIRECTION_GO_STRAIGHT);
 				}else{
-					if (IsIntersection(m_preCoordinateIndex[m_endIndex])){
-						calculate direction
+					if (IsIntersection(m_preCoordinateIndexes[m_endIndex])){
+						//calculate direction
+						double angle = CCoordinate::GetAngle(
+							m_coordinates[m_preCoordinateIndexes[m_preCoordinateIndexes[m_endIndex]]],
+							m_coordinates[m_preCoordinateIndexes[m_endIndex]],
+							m_coordinates[m_endIndex]);
+
+						float turnThreshold	= 0.00884;	//5 Degrees
+						if (angle > turnThreshold)	//Turn left
+							_pathDirections.push_back(DIRECTION_TURN_LEFT);
+						else if (angle < -turnThreshold)	//Turn left
+							_pathDirections.push_back(DIRECTION_TURN_RIGHT);
+						else
+							_pathDirections.push_back(DIRECTION_GO_STRAIGHT);
+
+						angle = angle + 8;
 					}else{
-						pathDirections.push_back(DIRECTION_GO_STRAIGHT);
+						_pathDirections.push_back(DIRECTION_GO_STRAIGHT);
 					}
 				}
 			}
@@ -386,7 +393,7 @@ std::vector<CCoordinate> CDijkstra::FindShortestPath(
 			m_endIndex = m_preCoordinateIndexes[m_endIndex];
 		}else{	//The path is disconnect
 			shortestPath.clear();
-			pathDirections.clear();
+			_pathDirections.clear();
 			_pathDistance = 0;
 			break;
 		}
@@ -395,17 +402,14 @@ std::vector<CCoordinate> CDijkstra::FindShortestPath(
         pathCounter++;
         if (pathCounter > m_coordinatesCount){      //The path is disconnect
             shortestPath.clear();
-			pathDirections.clear();
+			_pathDirections.clear();
             _pathDistance = 0;
             break;
         }
-
-    }
-//	if (m_endIndex == m_startIndex)
-//		pathDirections.push_back(DIRECTION_GO_STRAIGHT);	//Add the start direction
+	}
 
 	std::reverse(shortestPath.begin(),		shortestPath.end());
-	std::reverse(pathDirections.begin(),	pathDirections.end());
+	std::reverse(_pathDirections.begin(),	_pathDirections.end());
 	//! Free unnecessary memory
 
     return shortestPath;
