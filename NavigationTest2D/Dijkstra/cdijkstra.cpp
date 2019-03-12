@@ -99,29 +99,59 @@ void CDijkstra::AddCoordinate(CCoordinate _coordinate){
 	m_coordinatesCount++;
 }
 
-void CDijkstra::SetDistance(CWay & _way){
+//Checks that is this coordinate in the same neighborhood to
+//another coordinate. Return the index of coordinate of this
+//or another near coordinate
+int32_t CDijkstra::AddOrMergeCoordinate(CCoordinate _coordinate){//! hotspot
+	double distance = 0;
+	std::vector<CCoordinate>::iterator coordinate;
+	for (coordinate = m_coordinates.begin(); coordinate != m_coordinates.end(); coordinate++){
+		distance =	std::pow(coordinate->m_x - _coordinate.m_x, 2) +
+					std::pow(coordinate->m_y - _coordinate.m_y, 2) +
+					std::pow(coordinate->m_z - _coordinate.m_z, 2);
+		if (distance < MAX_NEIGHBORHOOD_DISTANCE)return (coordinate - m_coordinates.begin());
+	}
+
+	//Doesnt exist, so add it
+	m_coordinates.push_back(_coordinate);
+//	m_coordinatesCount++;
+//	return (m_coordinates.size() - 1);
+	return (m_coordinatesCount++);//! make sure
+}
+
+void CDijkstra::SetDistance(CWay & _way){//! extra//! hotspot
 	m_startIndex = m_endIndex = NONE_INDEX;
 
 	//! hotspot
-    //Start Coordinate
-    m_coordinateIterator = std::find(
-        m_coordinates.begin(),
-        m_coordinates.end(),
-        _way.m_startCoordinate);
-    m_startIndex = m_coordinateIterator - m_coordinates.begin();
+	//Start Coordinate
+	m_coordinateIterator = std::find(
+		m_coordinates.begin(),
+		m_coordinates.end(),
+		_way.m_startCoordinate);
+	m_startIndex = m_coordinateIterator - m_coordinates.begin();
 
-    //End Coordinate
-    m_coordinateIterator = std::find(
-        m_coordinates.begin(),
-        m_coordinates.end(),
-        _way.m_endCoordinate);
-    m_endIndex = m_coordinateIterator - m_coordinates.begin();
+	//End Coordinate
+	m_coordinateIterator = std::find(
+		m_coordinates.begin(),
+		m_coordinates.end(),
+		_way.m_endCoordinate);
+	m_endIndex = m_coordinateIterator - m_coordinates.begin();
 
-    m_distances[m_startIndex][m_endIndex]   = _way.m_distance;
-    if (!_way.m_isOneWay)
-        m_distances[m_endIndex][m_startIndex] = _way.m_distance;
-    m_preCoordinateIndexes[m_endIndex]      = m_startIndex;
+	m_distances[m_startIndex][m_endIndex]   = _way.m_distance;
+	if (!_way.m_isOneWay)
+		m_distances[m_endIndex][m_startIndex] = _way.m_distance;
+	m_preCoordinateIndexes[m_endIndex]      = m_startIndex;
 }
+
+void CDijkstra::SetDistance(CWay & _way, int32_t _sourceCoordinateIndex, int32_t _destinationCoordinateIndex){//! hotspot
+	m_startIndex = m_endIndex = NONE_INDEX;
+
+	m_distances[_sourceCoordinateIndex][_destinationCoordinateIndex] = _way.m_distance;//! remove ways and get in loadshapefile()
+	if (!_way.m_isOneWay)
+		m_distances[_destinationCoordinateIndex][_sourceCoordinateIndex] = _way.m_distance;
+	m_preCoordinateIndexes[_destinationCoordinateIndex] = _sourceCoordinateIndex;
+}
+
 
 void CDijkstra::GenerateDistancesMatrix(){
 	//Clear the memory
@@ -136,19 +166,11 @@ void CDijkstra::GenerateDistancesMatrix(){
 	m_coordinatesCount = 0;//Reset to count the non-repetitive coordinates, then resize the buffers again
 
 	//! change the search and make sure the return index of coordinate is correct
-
+	int32_t startIndex = 0, endIndex = 0;
 	for (std::vector<CWay>::iterator ways = m_ways.begin(); ways != m_ways.end(); ways++){
-        //Search for the start coordinate
-        m_coordinateIterator = std::find(m_coordinates.begin(), m_coordinates.end(), ways->m_startCoordinate);
-        if (m_coordinateIterator == m_coordinates.end())
-            AddCoordinate(ways->m_startCoordinate);
-
-        //Search for the end coordinate
-        m_coordinateIterator = std::find(m_coordinates.begin(), m_coordinates.end(), ways->m_endCoordinate);
-        if (m_coordinateIterator == m_coordinates.end())
-            AddCoordinate(ways->m_endCoordinate);
-
-        SetDistance(*ways);
+		startIndex = AddOrMergeCoordinate(ways->m_startCoordinate);
+		endIndex = AddOrMergeCoordinate(ways->m_endCoordinate);
+		SetDistance(*ways, startIndex, endIndex);
     }
 
 	//! Resize the buffer to non-repetitive coordinates

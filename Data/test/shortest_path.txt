@@ -1,7 +1,29 @@
 [Shortest Path]
-Distance : 338.924256m
+Distance : 332.685138m
 
-1th way		- Length : 23.587184m			- Direction : Go Straight
-2th way		- Length : 142.893476m			- Direction : Go Straight
-3th way		- Length : 69.549739m			- Direction : Go Straight
-4th way		- Length : 102.893857m			- Direction : Go Straight
+1th way		- Length : 6.377365m			- Direction : Go Straight
+2th way		- Length : 6.492349m			- Direction : Go Straight
+3th way		- Length : 6.592735m			- Direction : Go Straight
+4th way		- Length : 6.675003m			- Direction : Go Straight
+5th way		- Length : 6.736310m			- Direction : Go Straight
+6th way		- Length : 6.774717m			- Direction : Go Straight
+7th way		- Length : 6.591847m			- Direction : Go Straight
+8th way		- Length : 6.545155m			- Direction : Go Straight
+9th way		- Length : 6.476438m			- Direction : Go Straight
+10th way		- Length : 6.387678m			- Direction : Go Straight
+11th way		- Length : 6.282392m			- Direction : Go Straight
+12th way		- Length : 6.164287m			- Direction : Go Straight
+13th way		- Length : 6.037674m			- Direction : Go Straight
+14th way		- Length : 5.907780m			- Direction : Go Straight
+15th way		- Length : 5.780335m			- Direction : Go Straight
+16th way		- Length : 5.661129m			- Direction : Go Straight
+17th way		- Length : 5.555864m			- Direction : Go Straight
+18th way		- Length : 6.762477m			- Direction : Go Straight
+19th way		- Length : 6.710029m			- Direction : Go Straight
+20th way		- Length : 6.664458m			- Direction : Go Straight
+21th way		- Length : 20.414809m			- Direction : Go Straight
+22th way		- Length : 20.464761m			- Direction : Go Straight
+23th way		- Length : 20.518913m			- Direction : Go Straight
+24th way		- Length : 20.577189m			- Direction : Go Straight
+25th way		- Length : 20.639588m			- Direction : Go Straight
+26th way		- Length : 102.893857m			- Direction : Go Straight

@@ -132,25 +132,21 @@ void OpenGLWindow::initialize()
     m_matrixUniform     = m_program->uniformLocation("matrix");
 
 	glClearColor(1, 1, 1, 1);
-//    glClearDepth(1.0f);         // Set background depth to farthest
-//    glShadeModel(GL_SMOOTH);    // Enable smooth shading
     glHint(GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST);  // Nice perspective corrections
-//    glEnable(GL_DEPTH_TEST); // Enable depth buffer
-//    glDepthFunc(GL_LEQUAL);    // Set the type of depth-test
-//    glEnable(GL_CULL_FACE);//Disable back face culling
 
 	//Navigate
 	double pathDistance = 0;
 	int32_t index = 0;
+	//To test
 //	for (index = 0; index < 1; index++){
-		//m_dijkstra.LoadShapeFile("E:/Workstation/C++/NavigationTest2D/Data/test/test.shp");
-		m_dijkstra.LoadShapeFile("E:/Workstation/C++/NavigationTest2D/Data/Little map/test.shp");
+		m_dijkstra.LoadShapeFile("E:/Workstation/C++/NavigationTest2D/Data/test/test.shp");
+		//m_dijkstra.LoadShapeFile("E:/Workstation/C++/NavigationTest2D/Data/Little map/test.shp");
 
 		pathDistance = 0;
 //		CCoordinate sourceCoordinate		(51.358351, 35.773913, 0);//(51.358351, 35.773913, 0)
 //		CCoordinate destinationCoordinate	(51.362104, 35.774446, 0);//(51.365841, 35.766896, 0)
-		CCoordinate sourceCoordinate		(51.359147, 35.773082, 0);//(51.358351, 35.773913, 0)
-		CCoordinate destinationCoordinate	(51.362104, 35.774446, 0);//(51.365841, 35.766896, 0)
+		CCoordinate sourceCoordinate		(51.362801, 35.768481, 0);//(51.358351, 35.773913, 0)
+		CCoordinate destinationCoordinate	(51.363354, 35.767463, 0);//(51.365841, 35.766896, 0)
 
 		m_shortestPath = m_dijkstra.FindShortestPath(
 			sourceCoordinate,

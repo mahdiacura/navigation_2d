@@ -19,6 +19,7 @@
 #define DIRECTION_GO_STRAIGHT	0
 #define DIRECTION_TURN_RIGHT	1
 #define DIRECTION_TURN_LEFT		2
+//This is the half distance of closest coordinates together
 double const MAX_NEIGHBORHOOD_DISTANCE	= 0.000000000074916;
 
 class CDijkstra{
@@ -39,7 +40,7 @@ public:
     std::vector<std::vector<double>> m_distances;
     std::vector<CWay> m_ways;//! make it private
     std::vector<CCoordinate> m_coordinates; //! make it private
-    std::vector<CCoordinate>::iterator m_coordinateIterator;
+	std::vector<CCoordinate>::iterator m_coordinateIterator;//! extra
     std::vector<int32_t> m_preCoordinateIndexes;
     int32_t m_coordinatesCount;
     int32_t m_startIndex;
@@ -51,7 +52,11 @@ public:
     bool IsConnected(int32_t _startIndex, int32_t _endIndex);
     int32_t GetIndex(CCoordinate & _coordinate);
     void SetDistance(CWay & _way);
+	void SetDistance(CWay & _way,
+					 int32_t _sourceCoordinateIndex,
+					 int32_t _destinationCoordinateIndex);
     void AddCoordinate(CCoordinate _coordinate);
+	int32_t AddOrMergeCoordinate(CCoordinate _coordinate);
 	void GenerateDistancesMatrix();
     void FreeMemory();
 };
