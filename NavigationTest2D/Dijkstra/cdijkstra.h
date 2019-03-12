@@ -12,7 +12,7 @@
 #include "../Coordinate/cway.h"
 #include "ShapeLib/shapefil.h"
 
-#define INFINITE_DISTANCE	-1
+#define INFINITE_DISTANCE	(uint32_t)(-1)
 #define NONE_INDEX			-1
 
 //Directions

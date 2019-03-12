@@ -299,150 +299,151 @@ std::vector<CCoordinate> CDijkstra::FindShortestPath(
 	double neighborWeight	= INFINITE_DISTANCE;
 	//! optimise. O(n2)
 	while (unvisitedIndexes.size()){
-		if (unvisitedIndexes.size() < 10){
-			int x = 0;
-			x = 54 + x;
-		}
 
         //Find the nearest adjacent coordinate to current coordinate
-        minDistance         = INFINITE_DISTANCE;
-		minDistanceIndex    = NONE_INDEX;
-        for (index = 0; index < m_coordinatesCount; index++){
-            if (!IsConnected(currentIndex, index) || index == m_startIndex)continue;
-			if (m_preCoordinateIndexes[currentIndex] == index)continue;	//Ignore pre coordinates
+		{
+			minDistance         = INFINITE_DISTANCE;
+			minDistanceIndex    = NONE_INDEX;
+			for (index = 0; index < m_coordinatesCount; index++){
+				if (!IsConnected(currentIndex, index) || index == m_startIndex)continue;
+				//! check
+				if (m_preCoordinateIndexes[currentIndex] == index)continue;	//Ignore the recursive way
 
-			//! check it
-			{//Ignore if it has been visited ago
-				std::vector<int32_t>::iterator result =
-					std::find(unvisitedIndexes.begin(), unvisitedIndexes.end(), index);
-				if (result == unvisitedIndexes.end())continue;
+				//! check it
+				{//Ignore if it has been visited ago
+					std::vector<int32_t>::iterator result =
+						std::find(unvisitedIndexes.begin(), unvisitedIndexes.end(), index);
+					if (result == unvisitedIndexes.end())continue;
+				}
+
+				//Initialize and update the distance from source to current coordinate
+				currentWeight		= m_distances[currentIndex][currentIndex];
+				neighborDistance	= m_distances[currentIndex][index];
+				neighborWeight		= m_distances[index][index];
+//				if (currentWeight < 0 && neighborDistance > 0){
+//					currentWeight = currentWeight + 0;
+
+//					currentIndex = index;//! continue with next neighbor
+//					continue;
+//				}
+
+				if (neighborWeight > currentWeight + neighborDistance){
+					m_distances[index][index]       = currentWeight + neighborDistance;
+					m_preCoordinateIndexes[index]   = currentIndex;
+				}
+
+				if ((index != m_startIndex) && (minDistance > neighborDistance)){
+					minDistance         = neighborDistance;
+					minDistanceIndex    = index;
+				}
 			}
-
-            //Initialize the distance from source to current coordinate
-			currentWeight		= m_distances[currentIndex][currentIndex];
-			neighborDistance	= m_distances[currentIndex][index];
-			neighborWeight		= m_distances[index][index];
-			if (currentWeight < 0 && neighborDistance > 0){
-				currentWeight = currentWeight + 0;
-				//! continue with next neighbor
-				currentIndex = index;
-				continue;
-			}
-
-			if (INFINITE_DISTANCE == neighborWeight){
-				m_distances[index][index]  = currentWeight + neighborDistance;
-                m_preCoordinateIndexes[index] = currentIndex;
-			}else if (INFINITE_DISTANCE != neighborDistance &&
-					  neighborWeight > currentWeight + neighborDistance){
-				m_distances[index][index]       = currentWeight + neighborDistance;
-                m_preCoordinateIndexes[index]   = currentIndex;
-            }
-
-            if ((index != m_startIndex) &&
-				(minDistance > neighborDistance || INFINITE_DISTANCE == minDistance)){
-				minDistance         = neighborDistance;
-                minDistanceIndex    = index;
-            }
-        }
+		}
 
 		//! extra?
         //Update the distance and continue
-        if (INFINITE_DISTANCE != minDistanceIndex){
-            //Check is there the minDistanceIndex in the unvisisted list or not
-            std::vector<int32_t>::iterator currentCoordinate =
-				std::find(unvisitedIndexes.begin(), unvisitedIndexes.end(), minDistanceIndex);
-			if (currentCoordinate == unvisitedIndexes.end())
+		{
+			if (INFINITE_DISTANCE != minDistanceIndex){
+				//Check is there the minDistanceIndex in the unvisisted list or not
+				std::vector<int32_t>::iterator currentCoordinate =
+					std::find(unvisitedIndexes.begin(), unvisitedIndexes.end(), minDistanceIndex);
+				if (currentCoordinate == unvisitedIndexes.end())
+					if (unvisitedIndexes.size() > 0)
+						currentIndex = unvisitedIndexes[0];
+					else
+						break;
+				else
+					currentIndex = minDistanceIndex;
+			}else{
 				if (unvisitedIndexes.size() > 0)
 					currentIndex = unvisitedIndexes[0];
-                else
-                    break;
-            else
-                currentIndex = minDistanceIndex;
-        }else{
-			if (unvisitedIndexes.size() > 0)
-				currentIndex = unvisitedIndexes[0];
-            else
-                break;
-        }
-
-		//! extra?
-        //Remove current coordinate from unvisited coordinates
-        std::vector<int32_t>::iterator currentCoordinate =
-			std::find(unvisitedIndexes.begin(), unvisitedIndexes.end(), currentIndex);
-		if (currentCoordinate != unvisitedIndexes.end())
-			unvisitedIndexes.erase(currentCoordinate);
-        else
-			if (unvisitedIndexes.size() > 0)
-				currentIndex = unvisitedIndexes[0];
-            else
-                break;
-    }
-
-	//Make the path
-	_pathDirections.clear();
-	_pathDirections.push_back(DIRECTION_GO_STRAIGHT);	//Add the end direction
-
-	IsIntersection(m_startIndex);
-
-    int32_t pathCounter = 1;
-    _pathDistance        = 0;
-    shortestPath.clear();
-    shortestPath.push_back(m_coordinates[m_endIndex]);
-    for (;m_endIndex != m_startIndex;){
-		if (INFINITE_DISTANCE != m_preCoordinateIndexes[m_endIndex]){
-			_pathDistance += GetDistanceOnEarth(
-				m_coordinates[m_endIndex],
-				m_coordinates[m_preCoordinateIndexes[m_endIndex]]);
-			shortestPath.push_back(m_coordinates[m_preCoordinateIndexes[m_endIndex]]);
-
-			//Calculate direction
-			{
-				if (m_preCoordinateIndexes[m_endIndex] == m_startIndex){
-					_pathDirections.push_back(DIRECTION_GO_STRAIGHT);
-				}else{
-					if (IsIntersection(m_preCoordinateIndexes[m_endIndex])){
-						//calculate direction
-						double angle = CCoordinate::GetAngle(
-							m_coordinates[m_preCoordinateIndexes[m_preCoordinateIndexes[m_endIndex]]],
-							m_coordinates[m_preCoordinateIndexes[m_endIndex]],
-							m_coordinates[m_endIndex]);
-
-						float turnThreshold	= 0.00884;	//5 Degrees
-						if (angle > turnThreshold)	//Turn left
-							_pathDirections.push_back(DIRECTION_TURN_LEFT);
-						else if (angle < -turnThreshold)	//Turn left
-							_pathDirections.push_back(DIRECTION_TURN_RIGHT);
-						else
-							_pathDirections.push_back(DIRECTION_GO_STRAIGHT);
-
-						angle = angle + 8;
-					}else{
-						_pathDirections.push_back(DIRECTION_GO_STRAIGHT);
-					}
-				}
+				else
+					break;
 			}
 
-			m_endIndex = m_preCoordinateIndexes[m_endIndex];
-		}else{	//The path is disconnect
-			shortestPath.clear();
-			_pathDirections.clear();
-			_pathDistance = 0;
-			break;
+			//! extra?
+			//Remove current coordinate from unvisited coordinates
+			std::vector<int32_t>::iterator currentCoordinate =
+				std::find(unvisitedIndexes.begin(), unvisitedIndexes.end(), currentIndex);
+			if (currentCoordinate != unvisitedIndexes.end())
+				unvisitedIndexes.erase(currentCoordinate);
+			else
+				if (unvisitedIndexes.size() > 0)
+					currentIndex = unvisitedIndexes[0];
+				else
+					break;
 		}
 
-        //Check is the path connected or not
-        pathCounter++;
-        if (pathCounter > m_coordinatesCount){      //The path is disconnect
-            shortestPath.clear();
-			_pathDirections.clear();
-            _pathDistance = 0;
-            break;
-        }
-	}
+    }
 
-	std::reverse(shortestPath.begin(),		shortestPath.end());
-	std::reverse(_pathDirections.begin(),	_pathDirections.end());
-	//! Free unnecessary memory
+
+	//Make the shortest path
+	{
+		_pathDirections.clear();
+		_pathDirections.push_back(DIRECTION_GO_STRAIGHT);	//Add the end direction
+
+		IsIntersection(m_startIndex);
+
+		int32_t pathCounter = 1;
+		_pathDistance        = 0;
+		shortestPath.clear();
+		shortestPath.push_back(m_coordinates[m_endIndex]);
+		for (;m_endIndex != m_startIndex;){
+			if (INFINITE_DISTANCE != m_preCoordinateIndexes[m_endIndex]){
+				_pathDistance += GetDistanceOnEarth(
+					m_coordinates[m_endIndex],
+					m_coordinates[m_preCoordinateIndexes[m_endIndex]]);
+				shortestPath.push_back(m_coordinates[m_preCoordinateIndexes[m_endIndex]]);
+
+				//Calculate direction
+				{
+					if (m_preCoordinateIndexes[m_endIndex] == m_startIndex){
+						_pathDirections.push_back(DIRECTION_GO_STRAIGHT);
+					}else{
+						if (IsIntersection(m_preCoordinateIndexes[m_endIndex])){
+							//calculate direction
+							double angle = CCoordinate::GetAngle(
+								m_coordinates[m_preCoordinateIndexes[m_preCoordinateIndexes[m_endIndex]]],
+								m_coordinates[m_preCoordinateIndexes[m_endIndex]],
+								m_coordinates[m_endIndex]);
+
+							float turnThreshold	= 0.00884;	//5 Degrees
+							if (angle > turnThreshold)	//Turn left
+								_pathDirections.push_back(DIRECTION_TURN_LEFT);
+							else if (angle < -turnThreshold)	//Turn left
+								_pathDirections.push_back(DIRECTION_TURN_RIGHT);
+							else
+								_pathDirections.push_back(DIRECTION_GO_STRAIGHT);
+
+							angle = angle + 8;
+						}else{
+							_pathDirections.push_back(DIRECTION_GO_STRAIGHT);
+						}
+					}
+				}
+
+				m_endIndex = m_preCoordinateIndexes[m_endIndex];
+			}else{	//The path is disconnect
+//				shortestPath.clear();
+//				_pathDirections.clear();
+//				_pathDistance = 0;
+				break;
+			}
+
+			//Check is the path connected or not
+			pathCounter++;
+			if (pathCounter > m_coordinatesCount){      //The path is disconnect
+//				shortestPath.clear();
+//				_pathDirections.clear();
+//				_pathDistance = 0;
+				break;
+			}
+		}
+
+		std::reverse(shortestPath.begin(),		shortestPath.end());
+		std::reverse(_pathDirections.begin(),	_pathDirections.end());
+		//! Free unnecessary memory
+
+	}
 
     return shortestPath;
 }

@@ -139,14 +139,15 @@ void OpenGLWindow::initialize()
 	int32_t index = 0;
 	//To test
 //	for (index = 0; index < 1; index++){
-		m_dijkstra.LoadShapeFile("E:/Workstation/C++/NavigationTest2D/Data/test/test.shp");
-		//m_dijkstra.LoadShapeFile("E:/Workstation/C++/NavigationTest2D/Data/Little map/test.shp");
+		//m_dijkstra.LoadShapeFile("E:/Workstation/C++/NavigationTest2D/Data/test/test.shp");
+		m_dijkstra.LoadShapeFile("E:/Workstation/C++/NavigationTest2D/Data/Little map/test.shp");
 
 		pathDistance = 0;
-//		CCoordinate sourceCoordinate		(51.358351, 35.773913, 0);//(51.358351, 35.773913, 0)
-//		CCoordinate destinationCoordinate	(51.362104, 35.774446, 0);//(51.365841, 35.766896, 0)
-		CCoordinate sourceCoordinate		(51.362801, 35.768481, 0);//(51.358351, 35.773913, 0)
-		CCoordinate destinationCoordinate	(51.363354, 35.767463, 0);//(51.365841, 35.766896, 0)
+		CCoordinate sourceCoordinate		(51.358365, 35.773848, 0);
+		CCoordinate destinationCoordinate	(51.364635, 35.7676630, 0);
+
+//		CCoordinate sourceCoordinate		(51.361895, 35.773097, 0);
+//		CCoordinate destinationCoordinate	(51.364635, 35.7676630, 0);
 
 		m_shortestPath = m_dijkstra.FindShortestPath(
 			sourceCoordinate,
