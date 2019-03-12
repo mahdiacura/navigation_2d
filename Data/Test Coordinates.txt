@@ -1,0 +1,34 @@
+//		//Test_01	Connected
+//		CCoordinate sourceCoordinate		(51.364110, 35.767557, 0);
+//		CCoordinate destinationCoordinate	(51.363523, 35.766957, 0);
+//		//Test_02	Connected
+//		CCoordinate sourceCoordinate		(51.364151, 35.767077, 0);
+//		CCoordinate destinationCoordinate	(51.364041, 35.767545, 0);
+//		//Test_03	Disonnected
+//		CCoordinate sourceCoordinate		(51.364240, 35.766614, 0);
+//		CCoordinate destinationCoordinate	(51.363354, 35.767463, 0);
+//		//Test_04	Connected
+//		CCoordinate sourceCoordinate		(51.365402, 35.766843, 0);
+//		CCoordinate destinationCoordinate	(51.363354, 35.767463, 0);
+//		//Test_05	Connected
+//		CCoordinate sourceCoordinate		(51.364751, 35.768720, 0);
+//		CCoordinate destinationCoordinate	(51.363354, 35.767463, 0);
+//		//Test_06	Connected - e
+//		CCoordinate sourceCoordinate		(51.362801, 35.768481, 0);
+//		CCoordinate destinationCoordinate	(51.363354, 35.767463, 0);
+
+//		//Test_07	Connected
+//		CCoordinate sourceCoordinate		(51.366184, 35.767343, 0);
+//		CCoordinate destinationCoordinate	(51.363354, 35.767463, 0);
+//		//Test_08	Connected
+//		CCoordinate sourceCoordinate		(51.366184, 35.767343, 0);
+//		CCoordinate destinationCoordinate	(51.359886, 35.769982, 0);
+//		//Test_09	Connected - e
+//		CCoordinate sourceCoordinate		(51.366184, 35.767343, 0);
+//		CCoordinate destinationCoordinate	(51.358865, 35.771909, 0);
+//		//Test_10	Connected - e
+//		CCoordinate sourceCoordinate		(51.364450, 35.770770, 0);
+//		CCoordinate destinationCoordinate	(51.360223, 35.769444, 0);
+		//Test_11	Connected				(51.360934, 35.774256, 0);
+		CCoordinate sourceCoordinate		(51.358351, 35.773913, 0);//(51.3620558, 35.7744468, 0)
+		CCoordinate destinationCoordinate	(51.365841, 35.766896, 0);//(51.365841, 35.766896, 0)

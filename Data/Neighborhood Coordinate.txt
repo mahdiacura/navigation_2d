@@ -1,0 +1,7 @@
+The points that have located in distance below are the same
+R^2 : 0.000036163324824029
+
+Max distance that we have to merge the points :
+R^2 : 0.000000000149832 / 2 = 0.000000000074916
+R^2 : 0.000000000039202
+	  0.000000000074916

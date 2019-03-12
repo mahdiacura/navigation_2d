@@ -143,30 +143,14 @@ void OpenGLWindow::initialize()
 	double pathDistance = 0;
 	int32_t index = 0;
 //	for (index = 0; index < 1; index++){
-		m_dijkstra.LoadShapeFile("E:/Workstation/C++/NavigationTest2D/Data/test/test.shp");
+		//m_dijkstra.LoadShapeFile("E:/Workstation/C++/NavigationTest2D/Data/test/test.shp");
+		m_dijkstra.LoadShapeFile("E:/Workstation/C++/NavigationTest2D/Data/Little map/test.shp");
 
 		pathDistance = 0;
-//		//Test_01	Connected
-//		CCoordinate sourceCoordinate		(51.364110, 35.767557, 0);
-//		CCoordinate destinationCoordinate	(51.363523, 35.766957, 0);
-//		//Test_02	Connected
-//		CCoordinate sourceCoordinate		(51.364151, 35.767077, 0);
-//		CCoordinate destinationCoordinate	(51.364041, 35.767545, 0);
-//		//Test_03	Disonnected
-//		CCoordinate sourceCoordinate		(51.364240, 35.766614, 0);
-//		CCoordinate destinationCoordinate	(51.363354, 35.767463, 0);
-//		//Test_04	Connected
-//		CCoordinate sourceCoordinate		(51.365402, 35.766843, 0);
-//		CCoordinate destinationCoordinate	(51.363354, 35.767463, 0);
-//		//Test_05	Connected
-//		CCoordinate sourceCoordinate		(51.364995, 35.768640, 0);
-//		CCoordinate destinationCoordinate	(51.365443, 35.766823, 0);
-		//Test_06	Connected
-		CCoordinate sourceCoordinate		(51.362644, 35.768375, 0);
-		CCoordinate destinationCoordinate	(51.363354, 35.767463, 0);
-//		//Test_07	Connected
-//		CCoordinate sourceCoordinate		(51.362079, 35.770310, 0);
-//		CCoordinate destinationCoordinate	(51.363354, 35.767463, 0);
+//		CCoordinate sourceCoordinate		(51.358351, 35.773913, 0);//(51.358351, 35.773913, 0)
+//		CCoordinate destinationCoordinate	(51.362104, 35.774446, 0);//(51.365841, 35.766896, 0)
+		CCoordinate sourceCoordinate		(51.359147, 35.773082, 0);//(51.358351, 35.773913, 0)
+		CCoordinate destinationCoordinate	(51.362104, 35.774446, 0);//(51.365841, 35.766896, 0)
 
 		m_shortestPath = m_dijkstra.FindShortestPath(
 			sourceCoordinate,
@@ -184,7 +168,7 @@ void OpenGLWindow::initialize()
 	{
 		//    m_coordinatesBuffer = new GLdouble[
 		m_shortestPathColors = new GLfloat[m_waysCount * 3];
-		for (int32_t index = 0; index < (m_waysCount * 3) - 3; index += 3){
+		for (int32_t index = 0; index <= (m_waysCount * 3) - 3; index += 3){
 			//
 			m_shortestPathColors[index + 0] = 1;
 			m_shortestPathColors[index + 1] = 1;
@@ -192,11 +176,11 @@ void OpenGLWindow::initialize()
 		}
 
 		m_pathColors = new GLfloat[m_waysCount * 3];
-		for (int32_t index = 0; index < (m_waysCount * 3) - 3; index += 3){
+		for (int32_t index = 0; index <= (m_waysCount * 3) - 3; index += 3){
 			//white Color
-			m_pathColors[index + 0] = 1;
-			m_pathColors[index + 1] = 1;
-			m_pathColors[index + 2] = 1;
+			m_pathColors[index + 0] = 0.4;
+			m_pathColors[index + 1] = 0.4;
+			m_pathColors[index + 2] = 0.4;
 		}
 	}
 
@@ -204,7 +188,7 @@ void OpenGLWindow::initialize()
 	{
 		m_waysBuffer = new GLdouble[m_waysCount * 3];
 		int32_t waysCounter = 0;
-		for (int32_t index = 0; index < (m_waysCount * 3) - 3 * 2; index += 6){
+		for (int32_t index = 0; index <= (m_waysCount * 3) - 3 * 2; index += 6){
 			//Start Coordinate
 			m_waysBuffer[index + 0] = m_dijkstra.m_ways[waysCounter].m_startCoordinate.m_x;
 			m_waysBuffer[index + 1] = m_dijkstra.m_ways[waysCounter].m_startCoordinate.m_z;
@@ -255,7 +239,7 @@ void OpenGLWindow::initialize()
 					direction = "Turn Right";
 
 				textPath += std::to_string(coordinateCounter + 1) + "th way		- Length : " +
-						std::to_string(distance * 1000) + "m		- Direction : " + direction + "\n";
+						std::to_string(distance * 1000) + "m			- Direction : " + direction + "\n";
 			}
 
             coordinateCounter++;
@@ -359,7 +343,7 @@ void OpenGLWindow::render()
 		glVertexAttribPointer(m_colorAttribute, 3, GL_FLOAT, GL_FALSE, 0, m_shortestPathColors);
 		glEnableVertexAttribArray(m_positionAttribute);
 		glEnableVertexAttribArray(m_colorAttribute);
-		glLineWidth(2);
+		glLineWidth(1);
 		glDrawArrays(GL_LINES, 0, m_shortestPathCount);
 		glDisableVertexAttribArray(m_colorAttribute);
 		glDisableVertexAttribArray(m_positionAttribute);

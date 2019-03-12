@@ -134,6 +134,9 @@ void CDijkstra::GenerateDistancesMatrix(){
 
 	//Extract the coordinates
 	m_coordinatesCount = 0;//Reset to count the non-repetitive coordinates, then resize the buffers again
+
+	//! change the search and make sure the return index of coordinate is correct
+
 	for (std::vector<CWay>::iterator ways = m_ways.begin(); ways != m_ways.end(); ways++){
         //Search for the start coordinate
         m_coordinateIterator = std::find(m_coordinates.begin(), m_coordinates.end(), ways->m_startCoordinate);
@@ -152,6 +155,8 @@ void CDijkstra::GenerateDistancesMatrix(){
 //	m_distances.resize(m_coordinatesCount, std::vector<double>(m_coordinatesCount));
 //	m_preCoordinateIndexes.resize(m_coordinatesCount);
 
+	int x = 0;
+	x = 5;
 }
 
 int32_t CDijkstra::GetIndex(CCoordinate & _coordinate){
