@@ -188,15 +188,34 @@ int32_t CDijkstra::GetIndex(CCoordinate & _coordinate){
     return (m_coordinateIterator - m_coordinates.begin());
 }
 
-bool CDijkstra::IsIntersection(int32_t _coordinateIndex){
-	int32_t adjacentCoordinates = 0;
+int32_t CDijkstra::GetOutputsNumber(int32_t _coordinateIndex){
+	if (NONE_INDEX == _coordinateIndex)return 0;
+
+	int32_t outputsCounter = 0;
 	for (int32_t index = 0; index < m_coordinatesCount; index++){
 		if (_coordinateIndex == index)continue;
 		if (INFINITE_DISTANCE != m_distances[_coordinateIndex][index])
-			adjacentCoordinates++;
+			outputsCounter++;
 	}
 
-	if (adjacentCoordinates > 1)return true;
+	return outputsCounter;
+}
+
+int32_t CDijkstra::GetInputsNumber(int32_t _coordinateIndex){
+	if (NONE_INDEX == _coordinateIndex)return 0;
+
+	int32_t inputsCounter = 0;
+	for (int32_t index = 0; index < m_coordinatesCount; index++){
+		if (_coordinateIndex == index)continue;
+		if (INFINITE_DISTANCE != m_distances[index][_coordinateIndex])
+			inputsCounter++;
+	}
+
+	return inputsCounter;
+}
+
+bool CDijkstra::IsIntersection(int32_t _coordinateIndex){
+	if (GetOutputsNumber(_coordinateIndex) > 1)return true;
 	return false;
 }
 
@@ -264,9 +283,6 @@ std::vector<CCoordinate> CDijkstra::FindShortestPath(
 
 	GenerateDistancesMatrix();
 
-    //Initialize the unvisited vector to index
-    for (index = 0; index < m_coordinatesCount; index++)
-		unvisitedIndexes.push_back(index);
 
     //Find the index of coordinates in distances matrix
     m_startIndex = GetIndex(_source);
@@ -288,13 +304,17 @@ std::vector<CCoordinate> CDijkstra::FindShortestPath(
     }
 
     //The djacent coordinates to the current coordinate have the value on distances matrix
+	//Initialize the unvisited vector to index
+	for (index = 0; index < m_coordinatesCount; index++)
+		unvisitedIndexes.push_back(index);
+
 	//Start Coordinate Initialization
     m_preCoordinateIndexes[m_startIndex] = m_startIndex;
 	unvisitedIndexes.erase(unvisitedIndexes.begin() + m_startIndex);
     m_distances[m_startIndex][m_startIndex] = 0;
 
     currentIndex = m_startIndex;
-	double currentWeight	= INFINITE_DISTANCE;//! care about storing -1 in double. The result ~ -0.99999999996
+	double currentWeight	= INFINITE_DISTANCE;
 	double neighborDistance	= INFINITE_DISTANCE;
 	double neighborWeight	= INFINITE_DISTANCE;
 	//! optimise. O(n2)
@@ -326,6 +346,9 @@ std::vector<CCoordinate> CDijkstra::FindShortestPath(
 //					currentIndex = index;//! continue with next neighbor
 //					continue;
 //				}
+
+				//Remove the deadend way (coordinate1 to coordinate2)
+
 
 				if (neighborWeight > currentWeight + neighborDistance){
 					m_distances[index][index]       = currentWeight + neighborDistance;
@@ -423,6 +446,8 @@ std::vector<CCoordinate> CDijkstra::FindShortestPath(
 
 				m_endIndex = m_preCoordinateIndexes[m_endIndex];
 			}else{	//The path is disconnect
+				//Remove current dead end
+				RemoveUnsuccessfullDeadEnd(shortestPath, m_endIndex);
 //				shortestPath.clear();
 //				_pathDirections.clear();
 //				_pathDistance = 0;
@@ -446,5 +471,30 @@ std::vector<CCoordinate> CDijkstra::FindShortestPath(
 	}
 
     return shortestPath;
+}
+
+int32_t CDijkstra::RemoveUnsuccessfullDeadEnd(
+	std::vector<CCoordinate> & _deadEndPath,	//This vector is reverse
+	int32_t _lastIndex)
+{
+	int32_t preLastIndex = -1;
+	preLastIndex = GetIndex(_deadEndPath[(_deadEndPath.size() - 1) - 1]);
+
+	while ((2 > GetOutputsNumber(_lastIndex)) ||
+		   (2 > GetInputsNumber(_lastIndex) &&
+				INFINITE_DISTANCE != m_distances[preLastIndex][_lastIndex])){
+		_deadEndPath.erase(_deadEndPath.end());//Remove end coorindate of dead end
+
+		preLastIndex = GetIndex(_deadEndPath.back());
+		m_distances[_lastIndex][preLastIndex] = INFINITE_DISTANCE;
+		m_distances[preLastIndex][_lastIndex] = INFINITE_DISTANCE;
+
+		_lastIndex = preLastIndex;//Decrease the last index
+		preLastIndex = GetIndex(_deadEndPath[(_deadEndPath.size() - 1) - 1]);
+	}
+
+	int x = 0;
+	x = 3;
+	return _lastIndex;//Then Reroute again
 }
 

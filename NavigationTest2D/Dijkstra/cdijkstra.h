@@ -47,9 +47,14 @@ public:
     int32_t m_endIndex;
     SBox m_area;
 	CCoordinate m_centerOfMap;
-	bool IsIntersection(int32_t _coordinateIndex);
 
-    bool IsConnected(int32_t _startIndex, int32_t _endIndex);
+	int32_t RemoveUnsuccessfullDeadEnd(
+		std::vector<CCoordinate> & _deadEndPath,
+		int32_t _lastCoordinateIndex);
+	int32_t GetOutputsNumber(int32_t _coordinateIndex);
+	int32_t GetInputsNumber(int32_t _coordinateIndex);
+	bool IsIntersection(int32_t _coordinateIndex);
+	bool IsConnected(int32_t _startIndex, int32_t _endIndex);
     int32_t GetIndex(CCoordinate & _coordinate);
     void SetDistance(CWay & _way);
 	void SetDistance(CWay & _way,
