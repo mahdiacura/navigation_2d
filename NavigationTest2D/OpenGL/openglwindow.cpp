@@ -234,7 +234,7 @@ CCoordinate OpenGLWindow::GetCoordinate(int32_t _x, int32_t _y){
 	double offsetX = m_dijkstra.m_centerOfMap.m_x;
 	double offsetY = m_dijkstra.m_centerOfMap.m_y;
 
-	scaleY = scaleX;//! temporarily
+	scaleY = scaleX * (4/(float)3);//! temporarily
 
 	double glX = x * scaleX + offsetX;
 	double glY = y * scaleY + offsetY;
@@ -403,6 +403,34 @@ void OpenGLWindow::render()
 		glDisableVertexAttribArray(m_positionAttribute);
 	}
 
+
+	{//Target point
+		double w = 0.0001;
+		double offsetX = m_endCoordinate.m_x;
+		double offsetY = m_endCoordinate.m_y;
+		//offsetX = m_dijkstra.m_area.m_left;//m_dijkstra.m_centerOfMap.m_x;
+		//offsetY = m_dijkstra.m_centerOfMap.m_y;
+		GLdouble objectVertices[] = {
+			-w + offsetX,	 0.00001,	 -offsetY-w,
+			w + offsetX,	 0.00001,	-offsetY-w,
+			w + offsetX,	 0.00001,	 -offsetY +w,
+			-w + offsetX,	 0.00001,	-offsetY+w,
+		};
+		GLfloat objectColors[] = {
+			0, 0.6, 1,
+			0, 0.6, 1,
+			0, 0.6, 1,
+			0, 0.6, 1,
+		};
+		glVertexAttribPointer(m_positionAttribute, 3, GL_DOUBLE, GL_FALSE, 0, objectVertices);
+		glVertexAttribPointer(m_colorAttribute, 3, GL_FLOAT, GL_FALSE, 0, objectColors);
+		glEnableVertexAttribArray(m_positionAttribute);
+		glEnableVertexAttribArray(m_colorAttribute);
+		glLineWidth(2);
+		glDrawArrays(GL_QUADS, 0, 4);
+		glDisableVertexAttribArray(m_colorAttribute);
+		glDisableVertexAttribArray(m_positionAttribute);
+	}
 
 	m_program->release();
 	++m_frame;
