@@ -1,0 +1,10 @@
+[Shortest Path]
+Distance : 392.192639m
+
+1th way		- Length : 38.457153m			- Direction : Go Straight
+2th way		- Length : 94.181058m			- Direction : Turn Right
+3th way		- Length : 96.514182m			- Direction : Turn Left
+4th way		- Length : 2.684027m			- Direction : Go Straight
+5th way		- Length : 2.678558m			- Direction : Turn Right
+6th way		- Length : 2.707685m			- Direction : Turn Right
+7th way		- Length : 2.767230m			- Direction : Turn Right

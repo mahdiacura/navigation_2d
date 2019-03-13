@@ -145,32 +145,21 @@ void OpenGLWindow::initialize()
 	//Navigate
 	double pathDistance = 0;
 	int32_t index = 0;
-	//To test
-//	for (index = 0; index < 1; index++){
-		m_dijkstra.LoadShapeFile("E:/Workstation/C++/NavigationTest2D/Data/test/test.shp");
-		//m_dijkstra.LoadShapeFile("E:/Workstation/C++/NavigationTest2D/Data/Little map/test.shp");
+	m_dijkstra.LoadShapeFile("E:/Workstation/C++/NavigationTest2D/Data/map/test.shp");
 
-		pathDistance = 0;
-//		CCoordinate sourceCoordinate		(51.359152, 35.773133, 0);
-//		CCoordinate destinationCoordinate	(51.364635, 35.7676630, 0);
-//		CCoordinate sourceCoordinate		(51.358480, 35.772649, 0);
-//		CCoordinate destinationCoordinate	(51.358836, 35.771925, 0);
-
+	pathDistance = 0;
 //		//Infinit Loop
 //		CCoordinate sourceCoordinate		(51.359152, 35.773133, 0);
 //		CCoordinate destinationCoordinate	(51.365073, 35.779565, 0);
 
-		CCoordinate sourceCoordinate		(51.359152, 35.773133, 0);
-		CCoordinate destinationCoordinate	(51.3774031, 35.7743919, 0);
+	CCoordinate sourceCoordinate		(51.359152, 35.773133, 0);
+	CCoordinate destinationCoordinate	(51.3774031, 35.7743919, 0);
 
-		m_shortestPath = m_dijkstra.FindShortestPath(
-			sourceCoordinate,
-			destinationCoordinate,
-			pathDistance,
-			m_pathDirections);
-//	}
-
-	index = 0;
+	m_shortestPath = m_dijkstra.FindShortestPath(
+		sourceCoordinate,
+		destinationCoordinate,
+		pathDistance,
+		m_pathDirections);
 
 	m_waysCount = m_dijkstra.m_ways.size() * 2;	//Color
 	{
