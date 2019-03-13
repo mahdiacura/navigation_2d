@@ -32,6 +32,11 @@ OpenGL  	:
 	openglwindow.cpp
 
 
+# How To Use
+
+- Create an instance of CDijkstra class.
+- Load the shape file with instance.LoadShapeFile() function.
+- Get the shortest path between two coordinates coordinate1 & coordinate2 by 	instance.FindShortestPath() function.
 
 [Test the CDijkstra class]
 Test1 - Add coordinates manually
@@ -78,8 +83,26 @@ Test1 - Add coordinates manually
 
 openglwindow.cpp
 
+```
+CDijkstra dijkstra ;
 
-Route by pressing down clik (Set the start coordinate) and move the cursor, then release click (To set the destination coordinate). The result will be drawed in the opengl and specefics of shortest path in the shortest_path.txt like :
+CCoordinate sourceCoordinate		(51.359152, 35.773133, 0);
+CCoordinate destinationCoordinate	(51.3774031, 35.7743919, 0);
+std::vector<CCoordinate> shortestPath;
+std::vector<int8_t> pathDirections;
+double_t pathDistance = 0;
+
+dijkstra.LoadShapeFile("E:/Workstation/C++/NavigationTest2D/Data/test/test.shp");
+shortestPath =		dijkstra.FindShortestPath(
+				sourceCoordinate,
+				destinationCoordinate,
+				pathDistance,
+				pathDirections);
+
+```
+
+And also you can route by pressing down clik (Set the start coordinate) and move the cursor, then release click (To set the destination coordinate). The result will be drawed in the opengl and specefics of shortest path in the shortest_path.txt like :
+
 
 ```
 [Shortest Path]
