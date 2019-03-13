@@ -106,3 +106,6 @@ Distance : 275.323055m
 5_ Direction of each coordinate has been calculated for the previous coordinate.
 
 
+Route Sample
+
+![Route1](https://github.com/mahdiacura/navigation_2d/blob/version1.3/Data/RoutesPreview/1.jpg)
