@@ -3,6 +3,36 @@ Developer : Mahdi Nejadsahebi.
 
 This is a simple app to navigate between the ways with real coordinates;
 
+# Requirements
+
+>Add source codes below to project :
+
+Coordinate	:
+
+	cbox.h,		ccoordinate.h,		cway.h
+    
+	cbox.cpp,	ccoordinate.cpp,	cway.cpp
+    
+Dijkstra	:
+
+	cdijkstra.h,	csystemversion.h
+    
+	cdijkstra.cpp
+    
+ShapeLib	:
+
+	shapefil.h,	shpgeo.h
+    
+	dbfopen.c,	shpgeo.cpp,	safileio.c,	sbnsearch.h,	shpopen.c,	shptree.c
+    
+OpenGL  	:
+
+	openglwindow.h
+    
+	openglwindow.cpp
+
+
+
 [Test the CDijkstra class]
 Test1 - Add coordinates manually
 ```
