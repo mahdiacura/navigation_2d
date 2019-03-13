@@ -87,6 +87,14 @@ GLfloat areaColors[] = {
 	0, 0, 0
 };
 
+////#include <gl/glut.h>
+////openglwidget.cpp, it use QOpenGlView of QT UI
+//void pickRects(int button, int state, int x, int y)
+//{
+//qDebug()<<"pickRects";
+//printf("pickRects\n");
+//}
+
 OpenGLWindow::OpenGLWindow(QWindow *parent)
     : QWindow(parent)
     , m_animating(false)
@@ -143,11 +151,17 @@ void OpenGLWindow::initialize()
 		//m_dijkstra.LoadShapeFile("E:/Workstation/C++/NavigationTest2D/Data/Little map/test.shp");
 
 		pathDistance = 0;
-//		CCoordinate sourceCoordinate		(51.358365, 35.773848, 0);
+//		CCoordinate sourceCoordinate		(51.359152, 35.773133, 0);
 //		CCoordinate destinationCoordinate	(51.364635, 35.7676630, 0);
+//		CCoordinate sourceCoordinate		(51.358480, 35.772649, 0);
+//		CCoordinate destinationCoordinate	(51.358836, 35.771925, 0);
+
+//		//Infinit Loop
+//		CCoordinate sourceCoordinate		(51.359152, 35.773133, 0);
+//		CCoordinate destinationCoordinate	(51.365073, 35.779565, 0);
 
 		CCoordinate sourceCoordinate		(51.359152, 35.773133, 0);
-		CCoordinate destinationCoordinate	(51.364635, 35.7676630, 0);
+		CCoordinate destinationCoordinate	(51.3774031, 35.7743919, 0);
 
 		m_shortestPath = m_dijkstra.FindShortestPath(
 			sourceCoordinate,
@@ -156,10 +170,7 @@ void OpenGLWindow::initialize()
 			m_pathDirections);
 //	}
 
-	std::string textPath = "[Shortest Path]\nDistance : " +
-			std::to_string(pathDistance * 1000) + "m\n\n";
 	index = 0;
-
 
 	m_waysCount = m_dijkstra.m_ways.size() * 2;	//Color
 	{
@@ -187,6 +198,7 @@ void OpenGLWindow::initialize()
 		int32_t waysCounter = 0;
 		for (int32_t index = 0; index <= (m_waysCount * 3) - 3 * 2; index += 6){
 			//Start Coordinate
+			//! change the m_ways for drawing
 			m_waysBuffer[index + 0] = m_dijkstra.m_ways[waysCounter].m_startCoordinate.m_x;
 			m_waysBuffer[index + 1] = m_dijkstra.m_ways[waysCounter].m_startCoordinate.m_z;
 			m_waysBuffer[index + 2] = -m_dijkstra.m_ways[waysCounter].m_startCoordinate.m_y;
@@ -198,84 +210,129 @@ void OpenGLWindow::initialize()
 		}
 	}
 
+	UpdateShortestPathBuffer(pathDistance);
+}
+
+void OpenGLWindow::mouseMoveEvent(QMouseEvent *event)
+{
+
+}
+
+CCoordinate OpenGLWindow::GetCoordinate(int32_t _x, int32_t _y){
+	int32_t windowWidth		= width();
+	int32_t windowHeight	= height();
+
+	double x = _x - (windowWidth /(float) 2);
+	double y = -(_y - (windowHeight /(float) 2));
+
+	double areaWidth	= m_dijkstra.m_area.m_right	- m_dijkstra.m_area.m_left;
+	double areaHeight	= m_dijkstra.m_area.m_top	- m_dijkstra.m_area.m_bottom;
+
+	double scaleX = areaWidth / windowWidth;
+	double scaleY = areaHeight / windowHeight;
+
+	double offsetX = m_dijkstra.m_centerOfMap.m_x;
+	double offsetY = m_dijkstra.m_centerOfMap.m_y;
+
+	scaleY = scaleX;//! temporarily
+
+	double glX = x * scaleX + offsetX;
+	double glY = y * scaleY + offsetY;
+
+	return CCoordinate(glX, glY, 0);
+}
+
+
+void OpenGLWindow::mousePressEvent(QMouseEvent * event)
+{
+//	m_startPoint = event->pos();
+
+	m_startCoordinate = GetCoordinate(event->x(), event->y());
+	m_startPoint = event->pos();
+}
+
+void OpenGLWindow::mouseReleaseEvent(QMouseEvent * event)
+{
+	m_endCoordinate = GetCoordinate(event->x(), event->y());
+	m_endPoint = event->pos();
+
+	double pathDistance = 0;
+	m_shortestPath = m_dijkstra.FindShortestPath(
+		m_startCoordinate,
+		m_endCoordinate,
+		pathDistance,
+		m_pathDirections);
+	UpdateShortestPathBuffer(pathDistance);
+	renderNow();
+}
+
+void OpenGLWindow::UpdateShortestPathBuffer(double_t _pathDistance){
 	//Check for drawing
 	if (0 == m_shortestPath.size()){
 		m_foundPath = false;
 		return;
 	}else m_foundPath = true;
 
+	//Shortest Path
+	std::string textPath = "[Shortest Path]\nDistance : " +
+			std::to_string(_pathDistance * 1000) + "m\n\n";
 
-	//Path
-	{
-        //Shortest Path
-        m_shortestPathCount = (m_shortestPath.size() - 1) * 2;
-        m_shortestPathBuffer = new GLdouble[m_shortestPathCount * 3];
-        int32_t coordinateCounter = 0;
-        for (int32_t index = 0; index <= (m_shortestPathCount * 3) - 3 * 2; index += 6){
-            //Start Coordinate
-            m_shortestPathBuffer[index + 0] = m_shortestPath[coordinateCounter].m_x;
-			m_shortestPathBuffer[index + 1] = m_shortestPath[coordinateCounter].m_z;
-			m_shortestPathBuffer[index + 2] = -m_shortestPath[coordinateCounter].m_y;
-            //End Coordinate
-            m_shortestPathBuffer[index + 3] = m_shortestPath[coordinateCounter + 1].m_x;
-			m_shortestPathBuffer[index + 4] = m_shortestPath[coordinateCounter + 1].m_z;
-			m_shortestPathBuffer[index + 5] = -m_shortestPath[coordinateCounter + 1].m_y;
+	m_shortestPathCount = (m_shortestPath.size() - 1) * 2;
+	if (nullptr == m_shortestPathBuffer)
+		m_shortestPathBuffer = new GLdouble[m_shortestPathCount * 3];
+	int32_t coordinateCounter = 0;
+	for (int32_t index = 0; index <= (m_shortestPathCount * 3) - 3 * 2; index += 6){
+		//Start Coordinate
+		m_shortestPathBuffer[index + 0] = m_shortestPath[coordinateCounter].m_x;
+		m_shortestPathBuffer[index + 1] = m_shortestPath[coordinateCounter].m_z;
+		m_shortestPathBuffer[index + 2] = -m_shortestPath[coordinateCounter].m_y;
+		//End Coordinate
+		m_shortestPathBuffer[index + 3] = m_shortestPath[coordinateCounter + 1].m_x;
+		m_shortestPathBuffer[index + 4] = m_shortestPath[coordinateCounter + 1].m_z;
+		m_shortestPathBuffer[index + 5] = -m_shortestPath[coordinateCounter + 1].m_y;
 
-			//Generate the text path
-			{
-				double distance = m_dijkstra.GetDistanceOnEarth(
-					m_shortestPath[coordinateCounter],
-					m_shortestPath[coordinateCounter + 1]);
+		//Generate the text path
+		{
+			double distance = m_dijkstra.GetDistanceOnEarth(
+				m_shortestPath[coordinateCounter],
+				m_shortestPath[coordinateCounter + 1]);
 
-				std::string direction = "";
-				if (DIRECTION_GO_STRAIGHT == m_pathDirections[coordinateCounter])
-					direction = "Go Straight";
-				else if (DIRECTION_TURN_LEFT == m_pathDirections[coordinateCounter])
-					direction = "Turn Left";
-				else if (DIRECTION_TURN_RIGHT == m_pathDirections[coordinateCounter])
-					direction = "Turn Right";
+			std::string direction = "";
+			if (DIRECTION_GO_STRAIGHT == m_pathDirections[coordinateCounter])
+				direction = "Go Straight";
+			else if (DIRECTION_TURN_LEFT == m_pathDirections[coordinateCounter])
+				direction = "Turn Left";
+			else if (DIRECTION_TURN_RIGHT == m_pathDirections[coordinateCounter])
+				direction = "Turn Right";
 
-				textPath += std::to_string(coordinateCounter + 1) + "th way		- Length : " +
-						std::to_string(distance * 1000) + "m			- Direction : " + direction + "\n";
-			}
-
-            coordinateCounter++;
-        }
-
-		//Store text path on file
-		std::FILE * file = nullptr;
-		file = std::fopen("E:/Workstation/C++/NavigationTest2D/Data/test/shortest_path.txt", "w+");
-		if (nullptr != file){
-			std::fwrite(textPath.c_str(), sizeof(char), textPath.length(), file);
-			std::fclose(file);
+			textPath += std::to_string(coordinateCounter + 1) + "th way		- Length : " +
+					std::to_string(distance * 1000) + "m			- Direction : " + direction + "\n";
 		}
-    }
-}
 
-void OpenGLWindow::mouseMoveEvent(QMouseEvent *event)
-{
-//	int32_t dx = event->x() - m_lastX;
-//	int32_t dy = event->y() - m_lastY;
+		coordinateCounter++;
+	}
 
-//	if (event->buttons() & Qt::LeftButton) {
-
-//	} else if (event->buttons() & Qt::RightButton) {
-
-//	}
-//   lastPos = event->pos();
+	//Store text path on file
+	std::FILE * file = nullptr;
+	file = std::fopen("E:/Workstation/C++/NavigationTest2D/Data/test/shortest_path.txt", "w+");
+	if (nullptr != file){
+		std::fwrite(textPath.c_str(), sizeof(char), textPath.length(), file);
+		std::fclose(file);
+	}
 }
 
 void OpenGLWindow::render()
 {
 	const qreal retinaScale = devicePixelRatio();
+	int32_t w = width();
 	glViewport(0, 0, width() * retinaScale, height() * retinaScale);
 	glClear(GL_COLOR_BUFFER_BIT);
 
 	m_program->bind();
 
 	QMatrix4x4 matrix;
-	matrix.perspective(60.0f, 4.0f/3.0f, 0, 1000);
-//	//Camera : Front Ciew
+	matrix.perspective(60, 4/4, 0, 1000);//60.0f, 4.0f/3.0f, 0, 1000);
+//	//Camera : Front View
 //	{
 //		matrix.translate(0 - m_dijkstra.m_centerOfMap.m_x,
 //						 -0.01 - m_dijkstra.m_centerOfMap.m_z,
@@ -286,7 +343,7 @@ void OpenGLWindow::render()
 	{
 		matrix.translate(0 - m_dijkstra.m_centerOfMap.m_x,
 						 -m_dijkstra.m_centerOfMap.m_y,
-						 -0.029);
+						 -0.03396);
 		matrix.rotate(90, 1, 0, 0);
 	}
 	m_program->setUniformValue(m_matrixUniform, matrix);
@@ -304,7 +361,7 @@ void OpenGLWindow::render()
 	}
 
 	//Draw area of coordinates
-	{double d = 0.1;
+	{double d = 0.0;
 		GLdouble area_vertices[] = {
 			m_dijkstra.m_area.m_left - d, m_dijkstra.m_area.m_back, -m_dijkstra.m_area.m_bottom - d,
 			m_dijkstra.m_area.m_right + d, m_dijkstra.m_area.m_back, -m_dijkstra.m_area.m_bottom - d,

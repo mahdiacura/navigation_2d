@@ -21,11 +21,11 @@ int main(int argc, char *argv[])
     format.setDepthBufferSize(24);
     QSurfaceFormat::setDefaultFormat(format);
 
-    application.setApplicationName("2D Navigation");
-    application.setApplicationVersion("1.2");
+	application.setApplicationName("3D Navigation");
+	application.setApplicationVersion("1.3");
     #ifndef QT_NO_OPENGL
         OpenGLWindow openGLWindow;
-        openGLWindow.resize(1280, 720);
+		openGLWindow.resize(1200, 900);
         openGLWindow.show();
     #else
         QLabel note("OpenGL Support required");

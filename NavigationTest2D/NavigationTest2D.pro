@@ -24,13 +24,13 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 
 SOURCES += \
-        main.cpp \
-	mainwindow.cpp \
-	Dijkstra/cdijkstra.cpp \
-	Coordinate/ccoordinate.cpp \
-	Coordinate/cway.cpp \
-	Coordinate/cbox.cpp \
-	OpenGL/openglwindow.cpp \
+    main.cpp \
+    mainwindow.cpp \
+    Dijkstra/cdijkstra.cpp \
+    Coordinate/ccoordinate.cpp \
+    Coordinate/cway.cpp \
+    Coordinate/cbox.cpp \
+    OpenGL/openglwindow.cpp \
     ShapeLib/dbfopen.c \
     ShapeLib/safileio.c \
     ShapeLib/sbnsearch.c \
@@ -51,7 +51,9 @@ HEADERS += \
 
 
 
-LIBS += -lOpengl32
+LIBS += \
+    -lOpengl32
+    -lglut
 
 FORMS += \
         mainwindow.ui

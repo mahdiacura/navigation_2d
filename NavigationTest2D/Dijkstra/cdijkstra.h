@@ -64,6 +64,8 @@ public:
 	int32_t AddOrMergeCoordinate(CCoordinate _coordinate);
 	void GenerateDistancesMatrix();
     void FreeMemory();
+
+	int32_t removeCounter = 0;//!
 };
 
 #endif

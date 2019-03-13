@@ -144,14 +144,11 @@ void CDijkstra::SetDistance(CWay & _way){//! extra//! hotspot
 }
 
 void CDijkstra::SetDistance(CWay & _way, int32_t _sourceCoordinateIndex, int32_t _destinationCoordinateIndex){//! hotspot
-	m_startIndex = m_endIndex = NONE_INDEX;
-
 	m_distances[_sourceCoordinateIndex][_destinationCoordinateIndex] = _way.m_distance;//! remove ways and get in loadshapefile()
 	if (!_way.m_isOneWay)
 		m_distances[_destinationCoordinateIndex][_sourceCoordinateIndex] = _way.m_distance;
 	m_preCoordinateIndexes[_destinationCoordinateIndex] = _sourceCoordinateIndex;
 }
-
 
 void CDijkstra::GenerateDistancesMatrix(){
 	//Clear the memory
@@ -303,17 +300,22 @@ std::vector<CCoordinate> CDijkstra::FindShortestPath(
 		}
     }
 
+	int32_t endIndex = m_endIndex;
     //The djacent coordinates to the current coordinate have the value on distances matrix
-	//Initialize the unvisited vector to index
-	for (index = 0; index < m_coordinatesCount; index++)
-		unvisitedIndexes.push_back(index);
 
-	//Start Coordinate Initialization
-    m_preCoordinateIndexes[m_startIndex] = m_startIndex;
-	unvisitedIndexes.erase(unvisitedIndexes.begin() + m_startIndex);
-    m_distances[m_startIndex][m_startIndex] = 0;
+	//Initialize the unvisited vector to index
+	{
+		for (index = 0; index < m_coordinatesCount; index++)
+			unvisitedIndexes.push_back(index);
+
+		//Start Coordinate Initialization
+		m_preCoordinateIndexes[m_startIndex] = m_startIndex;
+		unvisitedIndexes.erase(unvisitedIndexes.begin() + m_startIndex);
+		m_distances[m_startIndex][m_startIndex] = 0;
+	}
 
     currentIndex = m_startIndex;
+	routing:;
 	double currentWeight	= INFINITE_DISTANCE;
 	double neighborDistance	= INFINITE_DISTANCE;
 	double neighborWeight	= INFINITE_DISTANCE;
@@ -446,17 +448,41 @@ std::vector<CCoordinate> CDijkstra::FindShortestPath(
 
 				m_endIndex = m_preCoordinateIndexes[m_endIndex];
 			}else{	//The path is disconnect
-				//Remove current dead end
-				RemoveUnsuccessfullDeadEnd(shortestPath, m_endIndex);
-//				shortestPath.clear();
-//				_pathDirections.clear();
-//				_pathDistance = 0;
+				//Remove current dead end and route again
+				currentIndex = RemoveUnsuccessfullDeadEnd(shortestPath, m_endIndex);
+				currentIndex = m_startIndex;
+				m_endIndex = endIndex;
 				break;
+				removeCounter++;
+//				if (removeCounter == 2){
+//					removeCounter = removeCounter + 0;
+//					break;
+//				}
+
+				shortestPath.clear();
+				_pathDirections.clear();
+				_pathDistance = 0;
+
+				//Initialize the unvisited vector to index
+				{
+					for (index = 0; index < m_coordinatesCount; index++)
+						unvisitedIndexes.push_back(index);
+
+					//Start Coordinate Initialization
+					m_preCoordinateIndexes[m_startIndex] = m_startIndex;
+					unvisitedIndexes.erase(unvisitedIndexes.begin() + m_startIndex);
+					m_distances[m_startIndex][m_startIndex] = 0;
+				}
+
+				goto routing;
+//				break;
 			}
 
 			//Check is the path connected or not
 			pathCounter++;
 			if (pathCounter > m_coordinatesCount){      //The path is disconnect
+				int x = 0 + 5;
+				x = 3;
 //				shortestPath.clear();
 //				_pathDirections.clear();
 //				_pathDistance = 0;
@@ -486,11 +512,27 @@ int32_t CDijkstra::RemoveUnsuccessfullDeadEnd(
 		_deadEndPath.erase(_deadEndPath.end());//Remove end coorindate of dead end
 
 		preLastIndex = GetIndex(_deadEndPath.back());
-		m_distances[_lastIndex][preLastIndex] = INFINITE_DISTANCE;
-		m_distances[preLastIndex][_lastIndex] = INFINITE_DISTANCE;
+		m_distances[_lastIndex][_lastIndex]		= INFINITE_DISTANCE;
+
+		if (NONE_INDEX == preLastIndex)return _lastIndex;
+		m_distances[preLastIndex][preLastIndex]	= INFINITE_DISTANCE;
+
+		m_distances[_lastIndex][preLastIndex]	= INFINITE_DISTANCE;
+		m_distances[preLastIndex][_lastIndex]	= INFINITE_DISTANCE;
+
+		m_preCoordinateIndexes[preLastIndex]	= NONE_INDEX;
 
 		_lastIndex = preLastIndex;//Decrease the last index
 		preLastIndex = GetIndex(_deadEndPath[(_deadEndPath.size() - 1) - 1]);
+	}
+
+	//! Remove pre of this dead end
+	{
+		m_distances[_lastIndex][preLastIndex]	= INFINITE_DISTANCE;
+		m_distances[preLastIndex][_lastIndex]	= INFINITE_DISTANCE;
+
+		m_distances[_lastIndex][_lastIndex]		= INFINITE_DISTANCE;
+		m_distances[preLastIndex][preLastIndex]	= INFINITE_DISTANCE;
 	}
 
 	int x = 0;

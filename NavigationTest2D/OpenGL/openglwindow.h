@@ -48,7 +48,7 @@
 **
 ****************************************************************************/
 #ifndef OPENGL_WINDOW_H
-#define OPENGL_WINDOW
+#define OPENGL_WINDOW_H
 
 static const char *vertexShaderSource =
     "attribute highp vec4 posAttr;\n"
@@ -77,6 +77,9 @@ static const char *fragmentShaderSource =
 #include <cstdint>
 #include <cstdio>
 
+//#include <GL/glut.h>
+//glutMouseFunc(&Init::DisplayInit::mouse);
+
 #include "Dijkstra/cdijkstra.h"
 
 class QPainter;
@@ -89,8 +92,10 @@ class OpenGLWindow : public QWindow, protected QOpenGLFunctions
 public:
     explicit OpenGLWindow(QWindow *parent = 0);
     ~OpenGLWindow();
+	void mousePressEvent(QMouseEvent *event);
+	void mouseReleaseEvent(QMouseEvent *event);
 	void mouseMoveEvent(QMouseEvent *event);
-    virtual void render(QPainter *painter);
+	virtual void render(QPainter *painter);
     virtual void render();
     virtual void initialize();
 
@@ -132,9 +137,14 @@ private:
 
 	bool m_foundPath = false;
 
+	void UpdateShortestPathBuffer(double_t _pathDistance);
+	CCoordinate GetCoordinate(int32_t _x, int32_t _y);
+
 	//Mouse
-	int32_t m_lastX = 0;
-	int32_t m_lastY = 0;
+	QPoint m_startPoint;
+	QPoint m_endPoint;
+	CCoordinate m_startCoordinate;
+	CCoordinate m_endCoordinate;
 };
 
 #endif
