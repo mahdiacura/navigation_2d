@@ -48,6 +48,9 @@ public:
     SBox m_area;
 	CCoordinate m_centerOfMap;
 
+	int32_t PopupNearestVertext(
+			std::vector<int32_t> & _priorityQueue,
+			std::vector<bool> & _isVisited);
 	int32_t RemoveUnsuccessfullDeadEnd(
 		std::vector<CCoordinate> & _deadEndPath,
 		int32_t _lastCoordinateIndex);
@@ -58,8 +61,8 @@ public:
     int32_t GetIndex(CCoordinate & _coordinate);
     void SetDistance(CWay & _way);
 	void SetDistance(CWay & _way,
-					 int32_t _sourceCoordinateIndex,
-					 int32_t _destinationCoordinateIndex);
+					 int32_t & _sourceCoordinateIndex,
+					 int32_t & _destinationCoordinateIndex);
     void AddCoordinate(CCoordinate _coordinate);
 	int32_t AddOrMergeCoordinate(CCoordinate _coordinate);
 	void GenerateDistancesMatrix();

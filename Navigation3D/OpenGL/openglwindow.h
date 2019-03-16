@@ -73,6 +73,8 @@ static const char *fragmentShaderSource =
 #include <QtGui/QMatrix4x4>
 #include <QtGui/QOpenGLShaderProgram>
 #include <QtGui/QScreen>
+#include <QDir>
+
 #include <vector>
 #include <cstdint>
 #include <cstdio>

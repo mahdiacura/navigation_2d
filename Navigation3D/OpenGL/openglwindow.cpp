@@ -145,15 +145,19 @@ void OpenGLWindow::initialize()
 	//Navigate
 	double pathDistance = 0;
 	int32_t index = 0;
-	m_dijkstra.LoadShapeFile("E:/Workstation/C++/NavigationTest2D/Data/map/test.shp");
+	QDir dir(".");
+	QString filePath = dir.absolutePath();
+	std::string shapeFileDirectory = filePath.toStdString();
+	m_dijkstra.LoadShapeFile(shapeFileDirectory + "/map/test.shp");
 
 	pathDistance = 0;
 //		//Infinit Loop
 //		CCoordinate sourceCoordinate		(51.359152, 35.773133, 0);
 //		CCoordinate destinationCoordinate	(51.365073, 35.779565, 0);
 
-	CCoordinate sourceCoordinate		(51.359152, 35.773133, 0);
-	CCoordinate destinationCoordinate	(51.3774031, 35.7743919, 0);
+	CCoordinate sourceCoordinate		(51.358798, 35.77286, 0);
+	//CCoordinate destinationCoordinate	(51.362809, 35.77444, 0);
+	CCoordinate destinationCoordinate	(51.362809, 35.77444, 0);
 
 	m_shortestPath = m_dijkstra.FindShortestPath(
 		sourceCoordinate,
@@ -267,8 +271,10 @@ void OpenGLWindow::UpdateShortestPathBuffer(double_t _pathDistance){
 			std::to_string(_pathDistance * 1000) + "m\n\n";
 
 	m_shortestPathCount = (m_shortestPath.size() - 1) * 2;
-	if (nullptr == m_shortestPathBuffer)
-		m_shortestPathBuffer = new GLdouble[m_shortestPathCount * 3];
+	if (nullptr != m_shortestPathBuffer)
+		delete[] m_shortestPathBuffer;
+	m_shortestPathBuffer = nullptr;
+	m_shortestPathBuffer = new GLdouble[m_shortestPathCount * 3];
 	int32_t coordinateCounter = 0;
 	for (int32_t index = 0; index <= (m_shortestPathCount * 3) - 3 * 2; index += 6){
 		//Start Coordinate
@@ -294,8 +300,8 @@ void OpenGLWindow::UpdateShortestPathBuffer(double_t _pathDistance){
 			else if (DIRECTION_TURN_RIGHT == m_pathDirections[coordinateCounter])
 				direction = "Turn Right";
 
-			textPath += std::to_string(coordinateCounter + 1) + "th way		- Length : " +
-					std::to_string(distance * 1000) + "m			- Direction : " + direction + "\n";
+			//textPath += std::to_string(coordinateCounter + 1) + "th way		- Length : " +
+			//		std::to_string(distance * 1000) + "m			- Direction : " + direction + "\n";
 		}
 
 		coordinateCounter++;
@@ -397,13 +403,11 @@ void OpenGLWindow::render()
 		double w = 0.0001;
 		double offsetX = m_endCoordinate.m_x;
 		double offsetY = m_endCoordinate.m_y;
-		//offsetX = m_dijkstra.m_area.m_left;//m_dijkstra.m_centerOfMap.m_x;
-		//offsetY = m_dijkstra.m_centerOfMap.m_y;
 		GLdouble objectVertices[] = {
-			-w + offsetX,	 0.00001,	 -offsetY-w,
-			w + offsetX,	 0.00001,	-offsetY-w,
-			w + offsetX,	 0.00001,	 -offsetY +w,
-			-w + offsetX,	 0.00001,	-offsetY+w,
+			-w + offsetX, 0.00001,	-offsetY - w,
+			+w + offsetX, 0.00001,	-offsetY - w,
+			+w + offsetX, 0.00001,	-offsetY + w,
+			-w + offsetX, 0.00001,	-offsetY + w,
 		};
 		GLfloat objectColors[] = {
 			0, 0.6, 1,
