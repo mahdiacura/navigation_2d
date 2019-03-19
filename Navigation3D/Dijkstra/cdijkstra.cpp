@@ -73,6 +73,8 @@ void CDijkstra::LoadShapeFile(std::string _shapeFilePath){
 	//Free memory of shape files
 	SHPClose(shapeFileHandle);
 	DBFClose(shapeDBFileHandle);
+
+	GenerateDistancesMatrix();
 }
 
 void CDijkstra::AddWay(CWay _way){
@@ -314,7 +316,9 @@ std::vector<CCoordinate> CDijkstra::FindShortestPath(
 	int32_t currentIndex        = NONE_INDEX;
 	std::vector<int32_t> priorityQueue;
 
-	GenerateDistancesMatrix();
+	//Reset the weight of vertices
+	for (index = 0; index < m_coordinatesCount; index++)
+		m_distances[index][index] = INFINITE_DISTANCE;
 
     //Find the index of coordinates in distances matrix
     m_startIndex = GetIndex(_source);
